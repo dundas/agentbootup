@@ -42,6 +42,38 @@ The generated task list _must_ follow this structure:
 - Unit tests should typically be placed alongside the code files they are testing (e.g., `MyComponent.tsx` and `MyComponent.test.tsx` in the same directory).
 - Use `npx jest [optional/path/to/test/file]` to run tests. Running without a path executes all tests found by the Jest configuration.
 
+## Commit Strategy
+
+Define when commits should be created during task implementation:
+
+- **After each parent task completion:** When all sub-tasks under a parent task are complete and tests pass, create a commit for that parent task.
+- **Conventional commit format:** Use semantic commit messages (e.g., `feat:`, `fix:`, `refactor:`, `test:`, `docs:`).
+- **Multi-line commits:** Use multiple `-m` flags to provide detailed context:
+  - First line: Brief summary following conventional commit format
+  - Subsequent lines: Detailed changes, key additions, and task/PRD references
+- **Example:**
+  ```bash
+  git commit -m "feat: add user profile editing" \
+    -m "- Implements profile form with validation" \
+    -m "- Adds avatar upload functionality" \
+    -m "- Includes unit tests for all components" \
+    -m "Related to Task 1.0 in tasks-0001-prd-user-profile.md"
+  ```
+
+## Pull Request Strategy
+
+Define when pull requests should be created:
+
+- **When all tasks are complete:** Create a PR only after ALL parent tasks in the task list are marked `[x]` and all tests pass.
+- **Branch naming:** Use descriptive branch names (e.g., `feature/user-profile-editing`, `fix/payment-validation`).
+- **PR description:** Include:
+  - Summary of changes
+  - Link to the PRD file
+  - Link to the tasks file
+  - Testing instructions
+  - Screenshots/demos (if applicable)
+- **Draft PRs:** Consider creating a draft PR early for visibility, then mark as ready when complete.
+
 ## Tasks
 
 - [ ] 1.0 Parent Task Title
