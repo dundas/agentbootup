@@ -33,6 +33,48 @@ Guidelines for managing task lists in markdown files to track progress on comple
    - List every file created or modified.
    - Give each file a one‑line description of its purpose.
 
+## Pull Request Creation
+
+After **ALL** parent tasks in the task list are complete (`[x]`), create a pull request:
+
+1. **Verify completion:**
+   - All parent tasks marked `[x]`
+   - All tests passing
+   - All commits pushed to feature branch
+
+2. **Create the PR:**
+   - Use `gh pr create` or the GitHub web interface
+   - Include a comprehensive description with:
+     - Summary of what was implemented
+     - Link to PRD: `Related to /tasks/[n]-prd-[feature-name].md`
+     - Link to tasks: `Task list: /tasks/tasks-[n]-prd-[feature-name].md`
+     - Testing instructions
+     - Screenshots or demos (if UI changes)
+   - Example:
+     ```bash
+     gh pr create --title "feat: User Profile Editing" --body "$(cat <<'EOF'
+     ## Summary
+     Implements user profile editing functionality as specified in the PRD.
+
+     ## Related Documents
+     - PRD: /tasks/0001-prd-user-profile-editing.md
+     - Tasks: /tasks/tasks-0001-prd-user-profile-editing.md
+
+     ## Changes
+     - Added profile form with validation
+     - Implemented avatar upload
+     - Created comprehensive test suite
+
+     ## Testing
+     1. Run `npm test` to verify all tests pass
+     2. Test profile editing flow manually
+     3. Verify avatar upload works with various image formats
+     EOF
+     )"
+     ```
+
+3. **Request review:** Assign appropriate reviewers and add relevant labels.
+
 ## AI Instructions
 
 When working with task lists, the AI must:
@@ -45,3 +87,4 @@ When working with task lists, the AI must:
 4. Keep "Relevant Files" accurate and up to date.
 5. Before starting work, check which sub‑task is next.
 6. After implementing a sub‑task, update the file and then pause for user approval.
+7. **After all parent tasks are complete:** Create a pull request following the PR creation guidelines above.

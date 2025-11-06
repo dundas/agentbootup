@@ -24,6 +24,36 @@ description: Process a task list one sub-task at a time with pause/confirm gates
 1. Update the task list as you work: mark `[x]`, add tasks if needed.
 2. Maintain the "Relevant Files" section with one-line purpose per file.
 
+## Pull Request Creation
+
+After **ALL** parent tasks are complete (`[x]`):
+
+1. Verify: all tasks `[x]`, tests pass, commits pushed.
+2. Create PR with `gh pr create` including:
+   - Summary of implementation
+   - Links to PRD and tasks files
+   - Testing instructions
+   - Screenshots/demos (if applicable)
+3. Request review and add labels.
+
+Example:
+```bash
+gh pr create --title "feat: User Profile Editing" --body "$(cat <<'EOF'
+## Summary
+Implements user profile editing per PRD.
+
+## Related Documents
+- PRD: /tasks/0001-prd-user-profile-editing.md
+- Tasks: /tasks/tasks-0001-prd-user-profile-editing.md
+
+## Changes
+- Profile form with validation
+- Avatar upload functionality
+- Comprehensive test suite
+EOF
+)"
+```
+
 ## AI Instructions
 1. Regularly update the task list after finishing significant work.
 2. Follow completion protocol strictly.
@@ -31,6 +61,7 @@ description: Process a task list one sub-task at a time with pause/confirm gates
 4. Keep "Relevant Files" accurate and up to date.
 5. Before starting, check which sub-task is next.
 6. After implementing a sub-task, update the file and pause for approval.
+7. **After all parent tasks complete:** Create PR following guidelines above.
 
 ## References
 - See `reference.md`.
