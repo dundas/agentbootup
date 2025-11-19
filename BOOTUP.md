@@ -3,10 +3,14 @@
 ## What it does
 - Adds project-level Claude Code assets:
   - `.claude/agents/` (decomposition-architect, technical-planner, spec-writer, tdd-developer, config-task-writer)
-  - `.claude/skills/` (prd-writer, tasklist-generator, task-processor, dev-workflow-orchestrator)
+  - `.claude/skills/` (prd-writer, tasklist-generator, task-processor, dev-workflow-orchestrator, frontend-design-concept, design-system-implementation)
   - `.claude/commands/` (dev-pipeline, prd-writer, generate-tasks, process-tasks)
 - Adds Windsurf workflows under `.windsurf/workflows/` (prd-writer, generate-tasks, process-tasks, dev-pipeline)
-- Adds AI Dev Tasks docs under `ai-dev-tasks/`
+- Adds AI Dev Tasks docs under `ai-dev-tasks/`:
+  - `create-prd.md` – Write a PRD for a new feature.
+  - `generate-tasks.md` – Generate a detailed task list from a PRD.
+  - `process-task-list.md` – Drive implementation using the generated task list.
+  - `design-system-from-reference.md` – Create a reusable design system from a reference UI screenshot.
 - Creates `tasks/` directory with `.gitkeep`
 
 ## Requirements

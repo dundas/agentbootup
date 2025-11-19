@@ -39,26 +39,6 @@ Create a detailed, step-by-step task list from a given PRD to guide implementati
 - Unit tests co-located with code when possible.
 - Use project test runner (e.g., Jest) per repo conventions.
 
-## Commit Strategy
-
-- Create a commit after each parent task completion (when all sub-tasks are `[x]` and tests pass).
-- Use conventional commit format: `feat:`, `fix:`, `refactor:`, `test:`, `docs:`.
-- Use multiple `-m` flags for detailed context.
-- Example:
-  ```bash
-  git commit -m "feat: add profile editing" \
-    -m "- Implements form validation" \
-    -m "- Adds avatar upload" \
-    -m "Related to Task 1.0 in tasks-0001-prd-user-profile.md"
-  ```
-
-## Pull Request Strategy
-
-- Create PR after ALL parent tasks are `[x]` and tests pass.
-- Use descriptive branch names (e.g., `feature/user-profile-editing`).
-- Include in PR description: summary, PRD link, tasks link, testing instructions.
-- Consider draft PRs for early visibility.
-
 ## Tasks
 
 - [ ] 1.0 Parent Task Title

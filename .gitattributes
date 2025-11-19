@@ -1,5 +1,0 @@
-docs/internal/ export-ignore
-scripts/dev/ export-ignore
-.github/ export-ignore
-.vscode/ export-ignore
-.env* export-ignore
