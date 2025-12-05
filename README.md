@@ -33,7 +33,7 @@ node bootup.mjs --target . --force
 node bootup.mjs --target . --subset agents,skills
 ```
 
-- Categories: `agents, skills, commands, workflows, docs`
+- Categories: `agents, skills, commands, workflows, docs, scripts`
 - Defaults: installs all; skips existing files unless `--force`
 
 ## What gets installed
@@ -43,10 +43,26 @@ node bootup.mjs --target . --subset agents,skills
 - `.windsurf/workflows/` → Windsurf slash-command workflows
 - `ai-dev-tasks/` → PRD + tasks + processing markdown guides
 - `tasks/` → created if missing with `.gitkeep`
+- `scripts/` → utility scripts (openapi-to-llm converter)
 
 ## After seeding
 - Restart Claude Code to reload project assets
 - Use Windsurf slash commands: `/dev-pipeline`, `/prd-writer`, `/generate-tasks`, `/process-tasks`
+
+## Scripts
+
+### OpenAPI to LLM Docs
+Convert OpenAPI specs into token-efficient documentation optimized for AI agents:
+
+```bash
+# Generate LLM-optimized docs from OpenAPI spec
+node scripts/openapi-to-llm.mjs --input openapi.json --output docs/api-llm.txt
+
+# Also export clean JSON
+node scripts/openapi-to-llm.mjs --input openapi.yaml --output docs/api-llm.txt --json public/openapi.json
+```
+
+Output is ~70-90% smaller than full OpenAPI spec while preserving essential info for agents.
 
 ## Local development
 ```bash

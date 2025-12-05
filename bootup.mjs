@@ -15,7 +15,7 @@ const __dirname = path.dirname(__filename);
 const templatesRoot = path.join(__dirname, 'templates');
 
 function parseArgs(argv) {
-  const args = { target: process.cwd(), subset: ['agents','skills','commands','workflows','docs'], force: false, dryRun: false, verbose: false };
+  const args = { target: process.cwd(), subset: ['agents','skills','commands','workflows','docs','scripts'], force: false, dryRun: false, verbose: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--target' && argv[i+1]) { args.target = path.resolve(argv[++i]); }
@@ -34,7 +34,7 @@ function printHelpAndExit(code = 0) {
   console.log(`\nBootup - Seed Claude Code + Windsurf into any project\n\n` +
 `Options:\n` +
 `  --target <dir>     Target project directory (default: CWD)\n` +
-`  --subset <csv>     Which templates to install: agents,skills,commands,workflows,docs (default: all)\n` +
+`  --subset <csv>     Which templates to install: agents,skills,commands,workflows,docs,scripts (default: all)\n` +
 `  --force            Overwrite existing files\n` +
 `  --dry-run          Preview actions without writing\n` +
 `  --verbose          Print each file action\n`);
@@ -52,6 +52,7 @@ function relToCategory(relPath) {
   if (relPath.startsWith('.windsurf/workflows/')) return 'workflows';
   if (relPath.startsWith('ai-dev-tasks/')) return 'docs';
   if (relPath.startsWith('tasks/')) return 'docs';
+  if (relPath.startsWith('scripts/')) return 'scripts';
   return 'other';
 }
 
