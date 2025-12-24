@@ -61,10 +61,10 @@ Process task lists autonomously with automated PR reviews and gap analysis after
 - **Tests Added:** N tests (M assertions)
 
 ### CI Status
-- ✅ Build: Passing
-- ✅ Tests: 250/250 passing
-- ✅ Lint: No errors
-- ⚠️ Coverage: 85% (target: 90%)
+- Build: Passing
+- Tests: 250/250 passing
+- Lint: No errors
+- Coverage: 85% (target: 90%)
 
 ### Review Comments
 - **Total Comments:** X
@@ -75,21 +75,21 @@ Process task lists autonomously with automated PR reviews and gap analysis after
 
 ## Gap to "Ready to Merge"
 
-### ✅ Completed Requirements
+### Completed Requirements
 - [x] All sub-tasks implemented
 - [x] Unit tests added (50+ assertions)
 - [x] Integration tests passing
 - [x] Documentation updated
 
-### ❌ Critical Issues (Blockers)
+### Critical Issues (Blockers)
 - [ ] Coverage below 90% (currently 85%)
 - [ ] Review comment: Add error handling in function X
 
-### ⚠️ Important Issues (Should Fix)
+### Important Issues (Should Fix)
 - [ ] Review comment: Consider refactoring function Y
 - [ ] Minor linting warnings
 
-### ⭕ Nice to Have (Optional)
+### Nice to Have (Optional)
 - [ ] Add more edge case tests
 - [ ] Improve inline documentation
 
@@ -122,9 +122,9 @@ Process task lists autonomously with automated PR reviews and gap analysis after
 ## PR Comment Template
 
 ```markdown
-## 🚀 Changes Summary
+## Changes Summary
 
-### 📝 Files Modified
+### Files Modified
 - `src/agents/comparison/ranker.ts` - Implemented global ranking algorithm
 - `src/agents/comparison/normalizer.ts` - Added score normalization (0-100 scale)
 - `src/agents/comparison/types.ts` - TypeScript type definitions
@@ -136,7 +136,7 @@ Process task lists autonomously with automated PR reviews and gap analysis after
 
 ---
 
-### 🔧 Implementation Details
+### Implementation Details
 
 **1. Multi-Strategy Scanning**
 - Extended discovery engine to run scans for covered calls, puts, collars, spreads simultaneously
@@ -155,7 +155,7 @@ Process task lists autonomously with automated PR reviews and gap analysis after
 
 ---
 
-### ✅ Testing
+### Testing
 
 - **Unit Tests:** 50/50 passing (35 new + 15 updated)
 - **Integration Tests:** 5/5 passing
@@ -170,21 +170,21 @@ Process task lists autonomously with automated PR reviews and gap analysis after
 
 ---
 
-### 📊 Gap Analysis
+### Gap Analysis
 
-See **[docs/PR_16_GAP_ANALYSIS.md](./docs/PR_16_GAP_ANALYSIS.md)** for detailed gap analysis.
+See **[docs/PR_[N]_GAP_ANALYSIS.md](./docs/PR_[N]_GAP_ANALYSIS.md)** for detailed gap analysis.
 
 **Quick Summary:**
-- ✅ All 7 sub-tasks completed
-- ✅ Tests passing
-- ✅ No blocking issues
-- ⚠️ 1 minor enhancement suggested
+- All sub-tasks completed
+- Tests passing
+- No blocking issues
+- 1 minor enhancement suggested
 
 ---
 
-### 📋 Task Reference
+### Task Reference
 
-Implements tasks from `tasks/tasks-autonomous-agent.md`:
+Implements tasks from `tasks/[task-file].md`:
 - [x] 1.1 Extend discovery engine for multi-strategy scanning
 - [x] 1.2 Create score normalization module
 - [x] 1.3 Build global ranking algorithm
@@ -195,9 +195,9 @@ Implements tasks from `tasks/tasks-autonomous-agent.md`:
 
 ---
 
-### 🎯 Status
+### Status
 
-**✅ Ready for Review**
+**Ready for Review**
 
 All requirements met. No blocking issues. Minor enhancement optional.
 
@@ -235,7 +235,7 @@ gh pr diff 16
 
 ## Automation Tips
 
-1. **Wait for CI:** Add 30-second delay after PR creation before checking status
+1. **Wait for CI:** Add 30-60 second delay after PR creation before checking status (adjust per repo)
 2. **Poll CI Status:** Check every 10 seconds until complete
 3. **Parse Review Comments:** Extract actionable items from JSON response
 4. **Idempotent Gap Analysis:** Overwrite previous gap analysis file
@@ -287,7 +287,7 @@ git push
 gh pr comment 16 --body "$(cat /tmp/pr-comment.md)"
 
 # Mark task 1.0 complete
-# Update tasks/tasks-autonomous-agent.md with [x]
+# Update tasks/[task-file].md with [x]
 
 # Move to task 2.0
 ```

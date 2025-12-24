@@ -33,7 +33,7 @@ Map which PRs can run in parallel vs. which depend on others:
 - `Manual`: UI testing, long runs, PR review/merge
 
 ### Output Location
-Save to `/tasks/` as `tasks-[prd-file-name].md`
+Save to `/tasks/` as `tasks-[prd-file-name].md` (create directory if needed)
 
 ## Example Task Format
 

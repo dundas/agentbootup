@@ -17,31 +17,31 @@ Leverages Claude Code's async subagents (v2.0.60+) to process multiple tasks in 
 ## Parallelization Strategy
 
 ### Level 1: Phase-Level Parallelization
-Launch multiple phases in parallel when no dependencies exist:
+Launch multiple phases in parallel when no dependencies exist. Use Claude Code's Task tool with multiple parallel calls:
 
-```typescript
+```
 // Batch 1: Independent phases (run in parallel)
-spawn_async_subagent("tdd-developer", "Phase 1: Comparison", phase1_tasks)
-spawn_async_subagent("tdd-developer", "Phase 5: Performance", phase5_tasks)
-spawn_async_subagent("tdd-developer", "Phase 8: Notifications", phase8_tasks)
+// Send a single message with multiple Task tool calls:
 
-// Wait for all to complete
-// Batch 2: Dependent phases (run in parallel after Batch 1)
-spawn_async_subagent("tdd-developer", "Phase 2: Allocation", phase2_tasks)
-// ... etc
+Task(subagent_type: "tdd-developer", description: "Phase 1: Comparison", prompt: "...")
+Task(subagent_type: "tdd-developer", description: "Phase 5: Performance", prompt: "...")
+Task(subagent_type: "tdd-developer", description: "Phase 8: Notifications", prompt: "...")
+
+// Wait for all to complete, then launch dependent phases
 ```
 
 ### Level 2: Sub-Task Parallelization
 Within a single phase, parallelize independent sub-tasks:
 
-```typescript
-// Phase 1 split into 3 parallel streams
-spawn_async_subagent("tdd-developer", "Discovery + Normalization", [task_1.1, task_1.2])
-spawn_async_subagent("tdd-developer", "Ranking + Reasoning", [task_1.3, task_1.4])
-spawn_async_subagent("tdd-developer", "Types + Tests", [task_1.5, task_1.6])
+```
+// Phase 1 split into 3 parallel streams (single message, multiple Task calls):
+
+Task(subagent_type: "tdd-developer", description: "Discovery + Normalization", prompt: "Tasks 1.1, 1.2...")
+Task(subagent_type: "tdd-developer", description: "Ranking + Reasoning", prompt: "Tasks 1.3, 1.4...")
+Task(subagent_type: "tdd-developer", description: "Types + Tests", prompt: "Tasks 1.5, 1.6...")
 
 // When all complete → Final task
-spawn_async_subagent("tdd-developer", "Create PR", [task_1.7])
+Task(subagent_type: "tdd-developer", description: "Create PR", prompt: "Task 1.7...")
 ```
 
 ## Execution Protocol
@@ -63,42 +63,43 @@ Phase Dependencies:
 ### 2. Create Execution Batches
 ```markdown
 Batch 1 (Parallel):
-- Phase 1 (3-4 days)
-- Phase 5 (2-3 days)
-- Phase 8 (1-2 days)
-→ Total: 3-4 days (not 6-9!)
+- Phase 1 (large effort)
+- Phase 5 (medium effort)
+- Phase 8 (small effort)
+→ Total: Large effort (instead of 3x sequential!)
 
 Batch 2 (Parallel - after Phase 1):
-- Phase 2 (3-4 days)
-- Phase 6 (1-2 days, after Phase 5)
-→ Total: 3-4 days
+- Phase 2 (large effort)
+- Phase 6 (small effort, after Phase 5)
+→ Total: Large effort
 
 Batch 3 (Parallel - after Phase 2):
-- Phase 3 (3-4 days)
-→ Total: 3-4 days
+- Phase 3 (large effort)
+→ Total: Large effort
 
 Batch 4 (Parallel - after Phase 3):
-- Phase 4 (2-3 days)
-- Phase 7 (3-4 days, also needs Phase 5)
-→ Total: 3-4 days
+- Phase 4 (medium effort)
+- Phase 7 (large effort, also needs Phase 5)
+→ Total: Large effort
 
 Batch 5 (Sequential - after all):
-- Phase 9 (2-3 days)
-→ Total: 2-3 days
+- Phase 9 (medium effort)
+→ Total: Medium effort
 
-**NEW TIMELINE: 14-21 days (vs 18-27 sequential!)**
+**Parallel execution reduces total effort by ~25% compared to sequential**
 ```
 
 ### 3. Spawn Async Subagents
 
-**Using Task Tool:**
-```typescript
-// Launch Phase 1 in background
-await Task({
-  subagent_type: "tdd-developer",
-  description: "Implement Phase 1: Comparison",
-  prompt: `
-    Work through tasks 1.1 through 1.7 from tasks/tasks-autonomous-agent.md
+**Using Task Tool (parallel calls in single message):**
+
+To launch multiple phases in parallel, send a single message with multiple Task tool calls:
+
+```
+Task tool call 1:
+  subagent_type: "tdd-developer"
+  description: "Implement Phase 1: Comparison"
+  prompt: "Work through tasks 1.1 through 1.7 from tasks/[task-file].md
 
     Tasks:
     - 1.1: Extend discovery engine
@@ -107,36 +108,30 @@ await Task({
     - 1.4: Add comparison reasoning
     - 1.5: Create TypeScript types
     - 1.6: Integration tests
-    - 1.7: Create PR #16
+    - 1.7: Create PR
 
     Follow test-driven development.
     Commit after each task.
-    When complete, create PR and run gap analysis.
-  `,
-  run_in_background: true  // ← KEY: Async execution!
-})
+    When complete, create PR and run gap analysis."
 
-// Launch Phase 5 in background (parallel to Phase 1)
-await Task({
-  subagent_type: "tdd-developer",
-  description: "Implement Phase 5: Performance",
-  prompt: `...`,
-  run_in_background: true
-})
+Task tool call 2 (in same message for parallel execution):
+  subagent_type: "tdd-developer"
+  description: "Implement Phase 5: Performance"
+  prompt: "Work through tasks 5.1 through 5.7..."
 
-// Main orchestrator continues, doesn't wait
-// Subagents will notify when complete
+// Both subagents run in parallel
+// Results returned when each completes
 ```
 
 ### 4. Monitor Progress
 
 **Check Subagent Status:**
 ```bash
-# List running subagents
+# List running background tasks
 /tasks
 
-# Check specific subagent output
-BashOutput(agent_id: "abc123")
+# Background tasks complete and return results automatically
+# Monitor the conversation for task completion notifications
 ```
 
 ### 5. Collect Results
@@ -189,7 +184,7 @@ skill: task-processor-parallel
 
 # Orchestrator: "3 subagents launched, monitoring progress..."
 
-# [3-4 days later]
+# [After Phase 5 completes first - shortest effort]
 # Phase 5 completes first (shortest)
 → Subagent 5 creates PR #20
 → Subagent 5 runs gap analysis
@@ -219,9 +214,9 @@ skill: task-processor-parallel
 ## Benefits
 
 ### Time Savings
-- **Sequential**: 18-27 days
-- **Parallel**: 14-21 days
-- **Savings**: ~25% faster
+- **Sequential**: Sum of all phase efforts
+- **Parallel**: Longest path through dependency graph
+- **Savings**: ~25% reduction in total effort
 
 ### Efficiency
 - No idle time waiting for sequential tasks
@@ -263,8 +258,8 @@ skill: task-processor-parallel
 
 ## References
 - See `reference.md`
-- [Claude Code Async Subagents](https://code.claude.com/docs/en/sub-agents)
-- [Parallelizing AI Coding Agents](https://ainativedev.io/news/how-to-parallelize-ai-coding-agents)
+- Claude Code documentation on Task tool and subagents
+- See `.claude/skills/task-processor-auto/SKILL.md` for PR automation details
 
 ---
 

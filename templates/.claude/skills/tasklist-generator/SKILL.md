@@ -10,7 +10,7 @@ Create a detailed, step-by-step task list from a given PRD to guide implementati
 
 ## Output
 - Format: Markdown (.md)
-- Location: `/tasks/`
+- Location: `/tasks/` (create directory if it doesn't exist)
 - Filename: `tasks-[prd-file-name].md` (e.g., `tasks-0001-prd-user-profile-editing.md`)
 
 ## Process
@@ -32,7 +32,6 @@ Create a detailed, step-by-step task list from a given PRD to guide implementati
 
 **Source PRD:** `docs/PRD_[name].md`
 **Generated:** YYYY-MM-DD
-**Estimated Timeline:** X-Y days
 
 ---
 
@@ -74,9 +73,9 @@ Create a detailed, step-by-step task list from a given PRD to guide implementati
 ## Tasks
 
 ### 1.0 Parent Task Title
-**Agent:** `tdd-developer` | `reliability-engineer`
+**Agent:** `tdd-developer` | `reliability-engineer` | `Manual`
 **PR:** `#N - Phase 1: Parent Task Name`
-**Estimated:** X-Y days
+**Effort:** Small | Medium | Large
 **Depends on:** (none) | PR #N
 
 - [ ] **1.1** Sub-task description
@@ -159,6 +158,20 @@ Each sub-task MUST include:
 | **Test** | If applicable | Test file path and assertion count |
 | **Commit** | Yes | Conventional commit message |
 | **Agent** | Yes | Which agent executes this task |
+
+## Handling Large Parent Tasks
+
+If a parent task is too large for a single PR:
+1. Split into multiple smaller parent tasks
+2. Ensure each split task is independently testable
+3. Define clear dependencies between the split tasks
+4. Each split task gets its own PR
+
+Signs a parent task is too large:
+- More than 10-12 sub-tasks
+- Touches more than 8-10 files
+- Multiple distinct functional areas
+- Would take more than a single focused work session
 
 ## Interaction Model
 - Explicit pause after parent tasks; proceed with sub-tasks only after "Go".

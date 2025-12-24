@@ -23,7 +23,7 @@ description: Process tasks autonomously with automated PR reviews and gap analys
      git commit -m "feat(scope): summary" \
        -m "- Detailed change 1" \
        -m "- Detailed change 2" \
-       -m "Implements Task X.Y from tasks/tasks-autonomous-agent.md"
+       -m "Implements Task X.Y from tasks/[task-file].md"
      ```
 3. **Push Branch:** `git push -u origin [branch-name]`
 4. **Create PR:** Using `gh pr create` with detailed description
@@ -55,7 +55,7 @@ description: Process tasks autonomously with automated PR reviews and gap analys
      - [ ] Enhancement 1
 
      ## Recommendation
-     ✅ Ready to merge / ❌ Needs work
+     Ready to merge / Needs work
      ```
 6. **Push Gap Analysis:**
    - `git add docs/PR_[number]_GAP_ANALYSIS.md`
@@ -77,14 +77,14 @@ description: Process tasks autonomously with automated PR reviews and gap analys
      - Added error handling for edge case W
 
      ### Testing
-     - ✅ All X tests passing
-     - ✅ Code coverage: Y%
-     - ✅ Integration tests added
+     - All X tests passing
+     - Code coverage: Y%
+     - Integration tests added
 
      ### Gap Analysis
      See docs/PR_[number]_GAP_ANALYSIS.md for detailed gap analysis.
 
-     📊 **Status:** [Ready for review / Needs attention]
+     **Status:** [Ready for review / Needs attention]
      ```
 
 ## Workflow Steps
@@ -127,13 +127,14 @@ description: Process tasks autonomously with automated PR reviews and gap analys
    ```
 
 ### Phase 3: Automated Review
-1. Wait 30 seconds for CI to start
-2. Check PR status: `gh pr view [PR-number]`
-3. Check CI status: `gh pr checks [PR-number]`
-4. Fetch review comments (if any): `gh api repos/owner/repo/pulls/[PR-number]/comments`
-5. Generate gap analysis document
-6. Commit and push gap analysis
-7. Add detailed comment to PR
+1. Wait for CI to start (30-60 seconds, adjust per repo)
+2. Get repo info: `gh repo view --json nameWithOwner -q .nameWithOwner`
+3. Check PR status: `gh pr view [PR-number]`
+4. Check CI status: `gh pr checks [PR-number]`
+5. Fetch review comments (if any): `gh api repos/[owner]/[repo]/pulls/[PR-number]/comments`
+6. Generate gap analysis document
+7. Commit and push gap analysis
+8. Add detailed comment to PR
 
 ### Phase 4: Address Review Feedback (if needed)
 1. If gap analysis shows issues:
@@ -185,6 +186,29 @@ All sub-tasks complete for Task 1.0
 → Mark parent task complete
 ```
 
+## Error Handling
+
+### Common Issues and Solutions
+
+**PR Creation Fails:**
+- Check if branch already has an open PR: `gh pr list --head [branch-name]`
+- If PR exists, update it instead of creating new one
+- If git conflicts, resolve locally and force push
+
+**CI Unavailable or Timeout:**
+- Generate gap analysis from local test results instead
+- Note CI status as "unavailable" in gap analysis
+- Proceed with PR comment, mark for manual CI verification
+
+**Git Conflicts:**
+- Fetch latest main: `git fetch origin main`
+- Rebase or merge: `git rebase origin/main` or `git merge origin/main`
+- Resolve conflicts, run tests, then continue
+
+**API Rate Limits:**
+- If GitHub API fails, wait and retry with exponential backoff
+- Generate gap analysis from cached/local data if needed
+
 ## AI Instructions
 1. **DO NOT** pause after each sub-task (autonomous mode)
 2. **DO** commit after each sub-task with clear message
@@ -193,6 +217,7 @@ All sub-tasks complete for Task 1.0
 5. **DO** add detailed PR comments
 6. **DO** keep task list updated in real-time
 7. Before starting next parent task, ensure previous PR is created and reviewed
+8. **DO** handle errors gracefully using the error handling guidelines above
 
 ## References
 - See `reference.md`
