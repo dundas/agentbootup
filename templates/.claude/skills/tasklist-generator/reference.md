@@ -30,6 +30,7 @@ Map which PRs can run in parallel vs. which depend on others:
 ### Agent Assignment
 - `tdd-developer`: Standard feature development, test-first
 - `reliability-engineer`: Safety-critical, constraints, edge cases
+- `dialectical-autocoder`: High-stakes features with adversarial player-coach loop
 - `Manual`: UI testing, long runs, PR review/merge
 
 ### Output Location
