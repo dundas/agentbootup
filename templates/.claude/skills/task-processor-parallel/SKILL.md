@@ -245,6 +245,35 @@ skill: task-processor-parallel
 - Mitigate: Stagger PR creation
 - Use draft PRs to delay CI
 
+## Production Completion Criteria
+
+Each subagent must ensure its phase is **production-ready** before reporting complete:
+
+1. **All sub-tasks implemented**: Code written and committed
+2. **All tests pass**: Full test suite for the phase passes
+3. **End-to-end works**: The phase's functionality works in the full flow
+4. **No blocking issues**: Fix all issues discovered, don't defer them
+
+### Critical Rule for Subagents
+
+When a subagent encounters an issue during validation:
+
+- **DO NOT** report the phase as complete with caveats
+- **DO NOT** say "phase done, but there's an unrelated issue"
+- **DO** fix all blocking issues before reporting complete
+- **DO** re-validate end-to-end after each fix
+- **DO** only report complete when production-ready
+
+### Orchestrator Validation
+
+After all phases complete, the orchestrator must:
+
+1. Run full integration test suite across all phases
+2. Validate the complete end-to-end user flow
+3. Ensure all PRs are mergeable without conflicts
+4. If ANY issue found, assign to appropriate subagent to fix
+5. Only declare "all phases complete" when production-ready
+
 ## AI Instructions
 
 1. **Analyze dependencies** before spawning subagents
@@ -255,6 +284,8 @@ skill: task-processor-parallel
 6. **Trigger dependent phases** when prerequisites met
 7. **Track PR status** for all parallel phases
 8. **Update task list** with real-time progress
+9. **Validate end-to-end** before declaring any phase complete
+10. **Fix all blocking issues** in-place, never defer them
 
 ## References
 - See `reference.md`

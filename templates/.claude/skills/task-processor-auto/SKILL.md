@@ -209,6 +209,65 @@ All sub-tasks complete for Task 1.0
 - If GitHub API fails, wait and retry with exponential backoff
 - Generate gap analysis from cached/local data if needed
 
+## Production Completion Criteria
+
+A task is **NOT complete** until:
+
+1. **Implementation works**: The specific sub-task code functions correctly
+2. **Tests pass**: All unit and integration tests pass
+3. **Dependencies work**: All related/dependent functionality still works
+4. **End-to-end works**: The full user flow works as it would in production
+5. **No blocking issues**: Any issues discovered during validation are fixed
+
+### Critical Rule: Fix Issues In-Place
+
+When you encounter a new issue while implementing or validating:
+
+- **DO NOT** mark the current task complete
+- **DO NOT** defer the issue to a "future task"
+- **DO NOT** say "this works, but there's an unrelated issue"
+- **DO** fix the issue immediately as part of the current work
+- **DO** re-validate end-to-end after each fix
+- **DO** continue fixing until the full flow works
+
+### End-to-End Validation Protocol
+
+Before marking any parent task complete:
+
+1. Run the full test suite (not just tests for changed files)
+2. Manually trace through the primary user flow
+3. Verify the feature works as it would in production
+4. If ANY issue blocks production use, fix it before proceeding
+5. Only mark complete when a user could use this in production
+
+### Example: Correct Behavior
+
+```
+Implementing Task 1.3...
+→ Code written, tests pass
+→ Running end-to-end validation...
+→ Issue found: Database connection not configured
+→ Fixing database connection (not deferring)
+→ Re-running end-to-end validation...
+→ Issue found: Missing environment variable
+→ Adding environment variable handling
+→ Re-running end-to-end validation...
+→ Full flow works
+→ NOW marking Task 1.3 complete
+```
+
+### Example: Incorrect Behavior (DO NOT DO THIS)
+
+```
+Implementing Task 1.3...
+→ Code written, tests pass
+→ "Task 1.3 is complete, but I noticed the database
+   connection isn't configured. That's a separate issue."
+→ Moving to Task 1.4...
+
+THIS IS WRONG - The task is NOT complete if end-to-end doesn't work!
+```
+
 ## AI Instructions
 1. **DO NOT** pause after each sub-task (autonomous mode)
 2. **DO** commit after each sub-task with clear message
@@ -218,6 +277,8 @@ All sub-tasks complete for Task 1.0
 6. **DO** keep task list updated in real-time
 7. Before starting next parent task, ensure previous PR is created and reviewed
 8. **DO** handle errors gracefully using the error handling guidelines above
+9. **DO** validate end-to-end before marking ANY task complete
+10. **DO** fix all blocking issues in-place, never defer them
 
 ## References
 - See `reference.md`
