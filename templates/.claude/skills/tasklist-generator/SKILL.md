@@ -140,6 +140,19 @@ Use for safety-critical features:
 - Security-sensitive code
 - Concurrent access handling
 
+### dialectical-autocoder
+Use for high-stakes features requiring adversarial validation:
+- Core business logic with complex requirements
+- Features where correctness is critical
+- Implementations with many edge cases
+- Features that have failed review previously
+- Any task where "good enough" is not acceptable
+
+When assigned, the task runs through a player-coach loop:
+1. Player (tdd-developer) implements
+2. Coach validates against requirements
+3. Loop until coach approves or escalate
+
 ### Manual
 Use for tasks requiring human judgment:
 - UI testing and visual verification
