@@ -1,6 +1,6 @@
 {
   "name": "agentbootup",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Seed Claude Code project agents, skills, commands, Windsurf workflows, and AI Dev Tasks into any project.",
   "type": "module",
   "bin": {
