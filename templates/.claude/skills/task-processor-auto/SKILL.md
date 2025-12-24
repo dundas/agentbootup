@@ -5,6 +5,19 @@ description: Process tasks autonomously with automated PR reviews and gap analys
 
 # Autonomous Task Processor with PR Review
 
+## Prerequisites
+
+**Required:**
+- Git repository with remote configured
+- GitHub CLI (`gh`) installed and authenticated: `gh auth login`
+- GitHub repository (PR automation features require GitHub)
+
+**Optional:**
+- CI/CD configured for automated checks
+- Branch protection rules for PR workflow
+
+**Non-GitHub Hosting:** If using GitLab, Bitbucket, or other platforms, the PR automation features won't work. You can still use the task processing and commit workflow, but skip the `gh` commands and create PRs manually through your platform's UI.
+
 ## Task Implementation (Autonomous Mode)
 - Process all sub-tasks under a parent task **without waiting for user approval**
 - Work through tasks sequentially and efficiently
@@ -208,6 +221,51 @@ All sub-tasks complete for Task 1.0
 **API Rate Limits:**
 - If GitHub API fails, wait and retry with exponential backoff
 - Generate gap analysis from cached/local data if needed
+
+### Gap Analysis Troubleshooting
+
+**GitHub API Completely Unavailable:**
+```
+1. Generate gap analysis from local information only:
+   - Use `git diff --stat` for files changed
+   - Use `git log --oneline` for commit history
+   - Use local test results for test status
+2. Mark CI status as "unavailable - manual verification needed"
+3. Create gap analysis document anyway
+4. Add note: "Generated from local state - verify manually"
+```
+
+**PR Not Found or Access Denied:**
+```
+1. Verify PR was created: `gh pr list --head [branch-name]`
+2. Check authentication: `gh auth status`
+3. If auth expired: `gh auth login`
+4. If PR exists but not accessible, check repo permissions
+```
+
+**Gap Analysis Document Can't Be Committed:**
+```
+1. Check for git conflicts: `git status`
+2. If conflicts exist, resolve them first
+3. Ensure docs/ directory exists: `mkdir -p docs`
+4. Try committing manually if automated commit fails
+```
+
+**Review Comments Can't Be Fetched:**
+```
+1. Fallback: Use `gh pr view [number]` for basic status
+2. Check if PR has any reviews yet
+3. Generate gap analysis without review details
+4. Add note: "Review comments unavailable"
+```
+
+**Network/Connectivity Issues:**
+```
+1. Check network connectivity
+2. Retry with exponential backoff (30s, 60s, 120s)
+3. If persistent, generate local-only gap analysis
+4. Queue PR operations for later retry
+```
 
 ## Production Completion Criteria
 

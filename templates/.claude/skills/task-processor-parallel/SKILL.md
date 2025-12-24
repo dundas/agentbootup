@@ -5,6 +5,20 @@ description: Process tasks using async background subagents for massive parallel
 
 # Parallel Task Processor with Async Subagents
 
+## Prerequisites
+
+**Required:**
+- Claude Code v2.0.60+ (for async subagent support)
+- Git repository with remote configured
+- GitHub CLI (`gh`) installed and authenticated: `gh auth login`
+- GitHub repository (PR automation features require GitHub)
+
+**Optional:**
+- CI/CD configured for automated checks
+- Sufficient API quota for parallel subagents
+
+**Non-GitHub Hosting:** If using GitLab, Bitbucket, or other platforms, the PR automation features won't work. You can still use parallel task processing, but create PRs manually.
+
 ## Overview
 Leverages Claude Code's async subagents (v2.0.60+) to process multiple tasks in parallel, dramatically reducing implementation time.
 
@@ -230,6 +244,21 @@ skill: task-processor-parallel
 
 ## Limitations & Considerations
 
+### Max Concurrent Subagents
+Recommended limits to avoid overwhelming resources:
+
+| Scenario | Max Parallel | Reason |
+|----------|--------------|--------|
+| Small tasks (< 30 min each) | 4-5 | Token budget, context quality |
+| Medium tasks (1-2 hours) | 2-3 | Avoid merge conflicts |
+| Large tasks (half day+) | 1-2 | Resource contention |
+
+**Guidelines:**
+- Start conservative (2-3 parallel) and increase if stable
+- Monitor token usage with `/stats` command
+- If subagents produce poor results, reduce parallelism
+- Complex codebases benefit from less parallelism
+
 ### Context Cost
 - Each subagent has its own context window
 - More parallel agents = higher token usage
@@ -244,6 +273,72 @@ skill: task-processor-parallel
 - Multiple PRs may overload CI
 - Mitigate: Stagger PR creation
 - Use draft PRs to delay CI
+
+## Troubleshooting Parallel Subagents
+
+### Subagent Fails or Produces Poor Results
+
+**Symptoms:**
+- Subagent returns incomplete work
+- Code doesn't compile or tests fail
+- Subagent seems "lost" or unfocused
+
+**Diagnosis:**
+1. Check task complexity - may be too large for single subagent
+2. Check task dependencies - may need output from another phase
+3. Check context - subagent may lack necessary codebase knowledge
+
+**Solutions:**
+- Break task into smaller sub-tasks
+- Run the phase sequentially instead of parallel
+- Provide more context in the subagent prompt
+- Reduce number of parallel subagents
+
+### Subagent Hangs or Times Out
+
+**Symptoms:**
+- `/tasks` shows subagent running for unusually long time
+- No progress updates
+
+**Solutions:**
+1. Check `/tasks` for status
+2. If stuck, cancel and retry with smaller scope
+3. Consider running that phase sequentially
+
+### Merge Conflicts Between Parallel Phases
+
+**Symptoms:**
+- `git push` fails with conflict errors
+- PRs can't be merged
+
+**Solutions:**
+1. Identify which files conflict
+2. Determine which phase's changes are correct
+3. Manually resolve conflicts
+4. Re-run validation on merged code
+5. **Prevention:** Assign clear file ownership per phase
+
+### Inconsistent State Across Phases
+
+**Symptoms:**
+- Phase A created interface X
+- Phase B expected different interface
+- Integration fails
+
+**Solutions:**
+1. Define interfaces/contracts BEFORE parallel execution
+2. Create shared types/interfaces in a prerequisite phase
+3. Re-run dependent phase after fixing interface
+
+### Debugging Checklist
+
+When parallel execution fails:
+- [ ] Check each subagent's output for errors
+- [ ] Verify no file conflicts between phases
+- [ ] Ensure dependencies were correctly identified
+- [ ] Check if task was too complex for parallelization
+- [ ] Review if phases had hidden dependencies
+- [ ] Consider falling back to sequential execution
 
 ## Production Completion Criteria
 
