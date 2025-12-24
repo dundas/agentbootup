@@ -24,6 +24,32 @@ description: Process a task list one sub-task at a time with pause/confirm gates
 1. Update the task list as you work: mark `[x]`, add tasks if needed.
 2. Maintain the "Relevant Files" section with one-line purpose per file.
 
+## Production Completion Criteria
+
+A sub-task is **NOT complete** until:
+
+1. **Implementation works**: The code functions correctly
+2. **Tests pass**: All related tests pass
+3. **End-to-end works**: The change works in the full user flow
+4. **No blocking issues**: Any discovered issues are fixed
+
+### Critical Rule: Fix Issues In-Place
+
+When you encounter an issue while implementing or testing:
+
+- **DO NOT** mark the sub-task complete with caveats
+- **DO NOT** say "this works, but there's an unrelated issue"
+- **DO NOT** defer issues to future tasks
+- **DO** fix the issue as part of the current work
+- **DO** re-test after each fix
+- **DO** only mark complete when it works end-to-end
+
+Before requesting user approval to proceed:
+1. Verify the sub-task works in isolation
+2. Verify it works in the broader context
+3. If you found and fixed additional issues, mention them
+4. Confirm the feature is production-ready
+
 ## AI Instructions
 1. Regularly update the task list after finishing significant work.
 2. Follow completion protocol strictly.
@@ -31,6 +57,9 @@ description: Process a task list one sub-task at a time with pause/confirm gates
 4. Keep "Relevant Files" accurate and up to date.
 5. Before starting, check which sub-task is next.
 6. After implementing a sub-task, update the file and pause for approval.
+7. **Validate end-to-end** before marking any sub-task complete.
+8. **Fix all blocking issues** in-place, never defer them.
 
 ## References
 - See `reference.md`.
+- See `.claude/agents/production-validator.md` for validation guidance.
