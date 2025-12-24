@@ -1,6 +1,10 @@
 ---
 name: dialectical-autocoder
 description: Orchestrate adversarial player-coach loop for high-quality code synthesis. Based on dialectical autocoding methodology.
+config:
+  max_turns: 5
+  escalate_on_timeout: true
+  fresh_context: true
 ---
 
 # Dialectical Autocoder
@@ -23,6 +27,142 @@ The loop continues until the coach approves or max turns are reached.
 **Agents Used:**
 - `.claude/agents/tdd-developer.md` - Player role
 - `.claude/agents/coach.md` - Coach role
+
+## Pre-Flight Checklist
+
+Before starting a dialectical session, verify:
+- [ ] Requirements document exists and is complete
+- [ ] Acceptance criteria are explicit and testable
+- [ ] Test infrastructure is configured (test runner works)
+- [ ] Project has git initialized (for commit tracking)
+- [ ] tdd-developer and coach agents are available
+- [ ] No blocking technical issues exist
+
+## Orchestrator Implementation
+
+When Claude Code executes this skill, it orchestrates the player-coach loop using the Task tool to launch fresh agent instances each turn.
+
+### Technical Flow
+
+```
+1. Load requirements document into context
+2. Initialize: turn_count = 0, max_turns = 5, verdict = null
+
+3. WHILE verdict != "APPROVED" AND turn_count < max_turns:
+   a. turn_count += 1
+
+   b. Launch Player (fresh instance):
+      Task tool with subagent_type="general-purpose"
+      Prompt includes:
+      - Requirements document path
+      - Previous coach feedback (if turn > 1)
+      - List of issues to address
+      - Request: implement and provide evidence
+
+   c. Capture player output:
+      - Files changed
+      - Test results
+      - Implementation summary
+      - Evidence provided
+
+   d. Launch Coach (fresh instance):
+      Task tool with subagent_type="general-purpose"
+      Prompt includes:
+      - Requirements document path
+      - Player's implementation summary
+      - Files to review
+      - Test output
+      - Request: validate and issue verdict
+
+   e. Parse coach verdict from output:
+      Look for: <!-- VERDICT:APPROVED|REVISE|REJECTED -->
+
+   f. If verdict == "APPROVED": break loop
+
+4. IF verdict != "APPROVED":
+   Trigger escalation protocol
+
+5. Document turn history
+```
+
+### Task Tool Invocation Example
+
+**Player Turn:**
+```
+Task tool:
+  subagent_type: "general-purpose"
+  prompt: |
+    You are the PLAYER in a dialectical autocoding session.
+
+    Requirements: [path/to/requirements.md]
+    Turn: 2 of 5
+
+    Previous coach feedback:
+    - Rate limiting not implemented
+    - Account lockout missing
+
+    Your task:
+    1. Read the requirements document
+    2. Address the coach's feedback
+    3. Implement with TDD approach
+    4. Run tests and ensure they pass
+    5. Report: files changed, tests added, evidence
+
+    Do NOT review your own work. The coach will validate.
+```
+
+**Coach Turn:**
+```
+Task tool:
+  subagent_type: "general-purpose"
+  prompt: |
+    You are the COACH in a dialectical autocoding session.
+
+    Requirements: [path/to/requirements.md]
+    Turn: 2 of 5
+
+    Player's implementation summary:
+    - Added rate limiting to auth endpoints
+    - Added account lockout after 10 failures
+    - 12 new tests passing
+
+    Files to review: [list of files]
+    Test output: [test results]
+
+    Your task:
+    1. Compare implementation to EACH requirement
+    2. Verify evidence provided
+    3. Identify any gaps or issues
+    4. Issue verdict with structured marker
+
+    End your review with exactly one of:
+    <!-- VERDICT:APPROVED -->
+    <!-- VERDICT:REVISE -->
+    <!-- VERDICT:REJECTED -->
+```
+
+### Fresh Context Implementation
+
+"Fresh context" means each agent turn uses a NEW Task tool invocation:
+- Previous conversation history is NOT included
+- Only structured data carries forward:
+  - Requirements document (constant)
+  - Previous verdict and specific feedback
+  - Files changed (for coach review)
+- This prevents:
+  - Context pollution from failed approaches
+  - Anchoring to previous attempts
+  - Accumulating confusion in long sessions
+
+### Turn Limit Enforcement
+
+The orchestrator MUST:
+1. Initialize turn counter at session start: `turn = 0`
+2. Increment BEFORE each player turn: `turn += 1`
+3. Check limit BEFORE starting new turn: `if turn > max_turns: escalate()`
+4. Log each turn: "Turn X of Y - Player/Coach phase"
+5. Automatically trigger escalation if limit exceeded
+6. Never allow more than max_turns iterations
 
 ## Key Concepts
 

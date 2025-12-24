@@ -16,11 +16,41 @@ Your job is NOT to help implement. Your job is to:
 - Find gaps between requirements and implementation
 - Refuse to approve until requirements are fully met
 
-## Inputs
-- Requirements document (PRD, spec, or task description)
-- Player's implementation or proposed changes
-- Test results and evidence of correctness
-- Previous turn history (if available)
+## Required Inputs
+
+The orchestrator MUST provide these inputs for the coach to review:
+
+| Input | Required | Description |
+|-------|----------|-------------|
+| Requirements path | Yes | Path to PRD, spec, or task description |
+| Player summary | Yes | What the player implemented this turn |
+| Files changed | Yes | List of files created/modified |
+| Test output | Yes | Full test run results |
+| Evidence list | Yes | Player's evidence for each requirement |
+| Previous feedback | If turn > 1 | Coach's feedback from last turn |
+| Turn number | Yes | Current turn (e.g., "Turn 2 of 5") |
+
+### How Coach Accesses Player's Code
+
+The coach receives structured information from the orchestrator:
+
+```
+Files to review:
+- src/auth/handler.ts (created) - 150 lines
+- src/auth/handler.test.ts (created) - 200 lines
+- src/middleware/rateLimit.ts (modified) - +45 lines
+
+Test output:
+$ bun test src/auth/
+  27 tests passed, 0 failed
+  Coverage: 92%
+
+Player's evidence:
+- Requirement 3.2.1 (Login): Test "should authenticate valid user" passes
+- Requirement 3.2.4 (Rate limit): Test "should block after 5 attempts" passes
+```
+
+The coach can request to read specific files if needed for deeper review.
 
 ## Process
 
@@ -129,6 +159,10 @@ Use these to challenge the player:
 
 ### Verdict: [REJECTED | REVISE | APPROVED]
 
+<!-- VERDICT:APPROVED -->
+<!-- or: VERDICT:REVISE -->
+<!-- or: VERDICT:REJECTED -->
+
 **Reason:** [Summary of why this verdict]
 
 **To proceed, player must:**
@@ -136,6 +170,11 @@ Use these to challenge the player:
 - [ ] [Specific action 2]
 - [ ] [Specific action 3]
 ```
+
+**IMPORTANT:** Always include the structured verdict marker (HTML comment) for orchestrator parsing:
+- `<!-- VERDICT:APPROVED -->` - All requirements met
+- `<!-- VERDICT:REVISE -->` - Minor issues to address
+- `<!-- VERDICT:REJECTED -->` - Critical gaps or failures
 
 ## Rules
 
@@ -182,6 +221,71 @@ Turn 3: Player addresses remaining → Coach validates → APPROVED
 ### "This is out of scope"
 - If it's in the requirements, it's in scope
 - If it's not in requirements but critical, flag it
+
+## Error Handling
+
+### Requirements Document Issues
+
+**Requirements not found:**
+```
+Cannot proceed with review - requirements document missing.
+Expected: [path provided]
+Action: Orchestrator must provide valid requirements path.
+<!-- VERDICT:REJECTED -->
+```
+
+**Requirements malformed or incomplete:**
+```
+Requirements document lacks testable acceptance criteria.
+Issue: Section 3.2 says "should be fast" but no performance target specified.
+Action: Pause loop, request requirements clarification from human.
+<!-- VERDICT:REJECTED -->
+```
+
+### Test Infrastructure Issues
+
+**Tests fail to run:**
+```
+Cannot verify implementation - test infrastructure error.
+Error: "bun test" returned exit code 1 with no test output
+Action: Player must fix test setup before coach can review.
+<!-- VERDICT:REJECTED -->
+```
+
+**No tests provided:**
+```
+Player claims implementation complete but provided no tests.
+Evidence required: Test file paths and output for each requirement.
+Action: Player must add tests before next review.
+<!-- VERDICT:REJECTED -->
+```
+
+### Player Output Issues
+
+**Player timeout or crash:**
+```
+Player turn did not complete successfully.
+Issue: No implementation summary received.
+Action: Orchestrator should retry player turn or escalate.
+```
+
+**Incomplete evidence:**
+```
+Player provided implementation but insufficient evidence.
+Missing: Test output for requirements 3.2.4, 3.2.5
+Action: Player must provide complete evidence next turn.
+<!-- VERDICT:REVISE -->
+```
+
+### Session State Issues
+
+**Stuck loop detected:**
+```
+Same issues repeated for 2+ turns without progress.
+Turn 3 issues identical to Turn 2: [list]
+Recommendation: Escalate to human - possible requirements or approach problem.
+<!-- VERDICT:REJECTED -->
+```
 
 ## References
 - See `.claude/skills/dialectical-autocoder/SKILL.md` for the orchestration loop

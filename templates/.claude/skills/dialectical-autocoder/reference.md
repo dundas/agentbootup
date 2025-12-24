@@ -56,6 +56,15 @@ Each agent turn starts with:
 - Previous verdict and feedback (structured)
 - Clean slate for approach
 
+**Technical Implementation:**
+- Each turn launches a NEW agent instance via Task tool
+- Previous conversation history is NOT passed to new instance
+- Only structured data carries forward:
+  - Requirements path (constant anchor)
+  - Previous coach verdict and specific feedback
+  - Files changed (for coach to review)
+- Agent instances are stateless between turns
+
 This prevents:
 - Compounding errors
 - Anchoring to failed approaches
@@ -231,6 +240,72 @@ Requesting human guidance:
 - [ ] Final implementation reviewed
 - [ ] PR created (if APPROVED)
 - [ ] Lessons captured (if ESCALATED)
+
+## Resource Considerations
+
+### Token Usage
+Each dialectical session consumes tokens for:
+- Requirements document (read each turn)
+- Player implementation (code generation)
+- Coach review (code analysis)
+- Test output (validation)
+
+**Estimated costs per turn:**
+- Small feature: ~10k-15k tokens
+- Medium feature: ~15k-25k tokens
+- Large feature: ~25k-40k tokens
+
+**Typical session (3 turns):** 30k-75k tokens total
+
+### Time Estimates
+| Phase | Duration |
+|-------|----------|
+| Player turn | 2-5 minutes |
+| Coach turn | 1-3 minutes |
+| Full session (3 turns) | 10-25 minutes |
+| Max session (5 turns) | 15-40 minutes |
+
+### Optimization Tips
+1. **Clear requirements** reduce turns needed
+2. **Specific acceptance criteria** speed coach review
+3. **Smaller features** complete faster (split large PRDs)
+4. **Good test infrastructure** provides quick feedback
+
+## Anti-Pattern Examples
+
+### Case Study: The Scope Creep Loop
+```
+Requirements: "Add user login"
+Turn 1: Player adds login + registration + password reset
+Coach: REJECTED - "Registration not in requirements"
+Turn 2: Player removes registration, adds OAuth
+Coach: REJECTED - "OAuth not in requirements"
+...
+```
+**Fix:** Player must implement ONLY what's specified
+
+### Case Study: The Vague Requirements Loop
+```
+Requirements: "Make it fast"
+Turn 1: Player optimizes database queries
+Coach: REVISE - "How fast? No target specified"
+Turn 2: Player adds caching
+Coach: REVISE - "Still no measurable target"
+...
+```
+**Fix:** Pause loop, clarify requirements with human first
+
+### Case Study: The Perfect is Enemy of Good
+```
+Turn 1: Player implements with 90% coverage
+Coach: REVISE - "Coverage should be 95%"
+Turn 2: Player hits 94%
+Coach: REVISE - "Still not 95%"
+Turn 3: Player hits 95%
+Coach: REVISE - "Edge case X not tested"
+...
+```
+**Fix:** Coach should identify ALL issues in first review, not incrementally
 
 ## References
 
