@@ -4,7 +4,7 @@
   "description": "Seed Claude Code, OpenAI Codex, Gemini CLI, and Windsurf development assets (agents, skills, commands, workflows) into any project.",
   "type": "module",
   "bin": {
-    "agentbootup": "./bootup.mjs"
+    "agentbootup": "bootup.mjs"
   },
   "files": [
     "bootup.mjs",
