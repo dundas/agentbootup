@@ -1,6 +1,6 @@
 # agentbootup
 
-Seed Claude Code project assets (agents, skills, commands), Windsurf workflows, and AI Dev Tasks into any project.
+Seed Claude Code assets (agents, skills, commands), Gemini CLI assets (skills, agents, commands), Windsurf workflows, and AI Dev Tasks into any project.
 
 ## Install
 
@@ -30,16 +30,19 @@ node bootup.mjs --target . --dry-run --verbose
 node bootup.mjs --target . --force
 
 # Only install specific categories
-node bootup.mjs --target . --subset agents,skills
+node bootup.mjs --target . --subset agents,skills,gemini
 ```
 
-- Categories: `agents, skills, commands, workflows, docs, scripts`
+- Categories: `agents, skills, commands, workflows, docs, scripts, gemini`
 - Defaults: installs all; skips existing files unless `--force`
 
 ## What gets installed
-- `.claude/agents/` → project subagents (decomposition-architect, technical-planner, spec-writer, tdd-developer, config-task-writer)
-- `.claude/skills/` → project skills (prd-writer, tasklist-generator, task-processor, dev-workflow-orchestrator)
-- `.claude/commands/` → convenience commands (prd-writer, generate-tasks, process-tasks, dev-pipeline)
+- `.claude/agents/` → project subagents
+- `.claude/skills/` → project skills
+- `.claude/commands/` → convenience commands
+- `.gemini/skills/` → project Agent Skills
+- `.gemini/agents/` → project reference personas
+- `.gemini/commands/` → convenience commands for Gemini
 - `.windsurf/workflows/` → Windsurf slash-command workflows
 - `ai-dev-tasks/` → PRD + tasks + processing markdown guides
 - `tasks/` → created if missing with `.gitkeep`
