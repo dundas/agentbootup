@@ -1,7 +1,7 @@
 {
   "name": "agentbootup",
-  "version": "0.2.0",
-  "description": "Seed Claude Code project agents, skills, commands, Windsurf workflows, and AI Dev Tasks into any project.",
+  "version": "0.3.0",
+  "description": "Seed Claude Code, Gemini CLI, and Windsurf development assets (agents, skills, commands, workflows) into any project.",
   "type": "module",
   "bin": {
     "agentbootup": "./bootup.mjs"
@@ -19,6 +19,8 @@
   "keywords": [
     "claude",
     "claude-code",
+    "gemini",
+    "gemini-cli",
     "windsurf",
     "bootstrap",
     "agents",
