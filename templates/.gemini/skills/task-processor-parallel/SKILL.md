@@ -316,7 +316,7 @@ After all phases complete, the orchestrator must:
 
 ## References
 - See `reference.md`
-- Gemini CLI documentation on Task tool and subagents
+- Gemini CLI documentation on shell delegation and subagents
 - See `.gemini/skills/task-processor-auto/SKILL.md` for PR automation details
 
 ---

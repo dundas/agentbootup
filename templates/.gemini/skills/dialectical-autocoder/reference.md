@@ -57,7 +57,7 @@ Each agent turn starts with:
 - Clean slate for approach
 
 **Technical Implementation:**
-- Each turn launches a NEW agent instance via Task tool
+- Each turn launches a NEW agent instance via Gemini CLI execution
 - Previous conversation history is NOT passed to new instance
 - Only structured data carries forward:
   - Requirements path (constant anchor)
