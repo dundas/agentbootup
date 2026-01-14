@@ -187,14 +187,14 @@ Recommended limits to avoid overwhelming resources:
 
 **Guidelines:**
 - Start conservative (2-3 parallel) and increase if stable
-- Monitor token usage with `/stats` command
+- Track usage/costs in your provider dashboard or billing console
 - If subagents produce poor results, reduce parallelism
 - Complex codebases benefit from less parallelism
 
 ### Context Cost
 - Each subagent has its own context window
 - More parallel agents = higher token usage
-- Monitor costs with `/stats`
+- Keep parallelism low if cost-sensitive
 
 ### Merge Conflicts
 - Parallel work may touch same files
@@ -229,11 +229,11 @@ Recommended limits to avoid overwhelming resources:
 ### Subagent Hangs or Times Out
 
 **Symptoms:**
-- `/tasks` shows subagent running for unusually long time
+- A background `gemini` process runs for unusually long time
 - No progress updates
 
 **Solutions:**
-1. Check `/tasks` for status
+1. Check process status with `jobs -l` (or `ps aux | grep gemini`)
 2. If stuck, cancel and retry with smaller scope
 3. Consider running that phase sequentially
 
@@ -305,9 +305,9 @@ After all phases complete, the orchestrator must:
 
 1. **Analyze dependencies** before spawning subagents
 2. **Create execution batches** based on dependency graph
-3. **Spawn subagents** with `run_in_background: true`
-4. **Monitor progress** via `/tasks` command
-5. **Collect results** as subagents complete
+3. **Spawn subagents** as background shell jobs (append `&`)
+4. **Monitor progress** with `jobs -l` (or `ps`)
+5. **Collect results** as subagents complete (use `wait`)
 6. **Trigger dependent phases** when prerequisites met
 7. **Track PR status** for all parallel phases
 8. **Update task list** with real-time progress

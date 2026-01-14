@@ -288,6 +288,6 @@ Recommendation: Escalate to human - possible requirements or approach problem.
 ```
 
 ## References
-- See `.claude/skills/dialectical-autocoder/SKILL.md` for the orchestration loop
-- See `.claude/agents/tdd-developer.md` for the player agent
-- See `.claude/agents/production-validator.md` for end-to-end validation
+- See `.gemini/skills/dialectical-autocoder/SKILL.md` for the orchestration loop
+- See `.gemini/agents/tdd-developer.md` for the player agent
+- See `.gemini/agents/production-validator.md` for end-to-end validation

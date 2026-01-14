@@ -2,7 +2,7 @@
 
 This document tracks the gaps between the current implementation of Gemini CLI support and a "Ready to Merge" production state.
 
-## 1. Technical Hallucinations & Terminology (High Priority) [PARTIALLY ADDRESSED]
+## 1. Technical Hallucinations & Terminology (High Priority) [ADDRESSED]
 
 | Gap | Description | Required Change | Status |
 |-----|-------------|-----------------|--------|
@@ -11,7 +11,7 @@ This document tracks the gaps between the current implementation of Gemini CLI s
 | **Claude-Specific Commands** | References to `/tasks` or `/stats`. | Replace with `/skills list`. | Done (Parallel) |
 | **Background Syntax** | References to `run_in_background: true`. | Replace with shell `&`. | Done (Parallel) |
 
-## 2. Tool Invocation & Orchestration (High Priority) [PARTIALLY ADDRESSED]
+## 2. Tool Invocation & Orchestration (High Priority) [ADDRESSED]
 
 | Gap | Description | Required Change | Status |
 |-----|-------------|-----------------|--------|

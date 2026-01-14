@@ -89,52 +89,56 @@ When Gemini CLI executes this skill, it orchestrates the player-coach loop using
 
 **Player Turn:**
 ```bash
-gemini -p "You are the PLAYER in a dialectical autocoding session.
+gemini -p "$(cat <<'EOF'
+You are the PLAYER in a dialectical autocoding session.
 
-    Requirements: [path/to/requirements.md]
-    Turn: 2 of 5
+Requirements: [path/to/requirements.md]
+Turn: 2 of 5
 
-    Previous coach feedback:
-    - Rate limiting not implemented
-    - Account lockout missing
+Previous coach feedback:
+- Rate limiting not implemented
+- Account lockout missing
 
-    Your task:
-    1. Read the requirements document
-    2. Address the coach's feedback
-    3. Implement with TDD approach
-    4. Run tests and ensure they pass
-    5. Report: files changed, tests added, evidence
+Your task:
+1. Read the requirements document
+2. Address the coach's feedback
+3. Implement with TDD approach
+4. Run tests and ensure they pass
+5. Report: files changed, tests added, evidence
 
-    Do NOT review your own work. The coach will validate." \
-    --allowed-tools all --yolo
+Do NOT review your own work. The coach will validate.
+EOF
+)" --allowed-tools all --yolo
 ```
 
 **Coach Turn:**
 ```bash
-gemini -p "You are the COACH in a dialectical autocoding session.
+gemini -p "$(cat <<'EOF'
+You are the COACH in a dialectical autocoding session.
 
-    Requirements: [path/to/requirements.md]
-    Turn: 2 of 5
+Requirements: [path/to/requirements.md]
+Turn: 2 of 5
 
-    Player's implementation summary:
-    - Added rate limiting to auth endpoints
-    - Added account lockout after 10 failures
-    - 12 new tests passing
+Player's implementation summary:
+- Added rate limiting to auth endpoints
+- Added account lockout after 10 failures
+- 12 new tests passing
 
-    Files to review: [list of files]
-    Test output: [test results]
+Files to review: [list of files]
+Test output: [test results]
 
-    Your task:
-    1. Compare implementation to EACH requirement
-    2. Verify evidence provided
-    3. Identify any gaps or issues
-    4. Issue verdict with structured marker
+Your task:
+1. Compare implementation to EACH requirement
+2. Verify evidence provided
+3. Identify any gaps or issues
+4. Issue verdict with structured marker
 
-    End your review with exactly one of:
-    <!-- VERDICT:APPROVED -->
-    <!-- VERDICT:REVISE -->
-    <!-- VERDICT:REJECTED -->" \
-    --allowed-tools all --yolo
+End your review with exactly one of:
+<!-- VERDICT:APPROVED -->
+<!-- VERDICT:REVISE -->
+<!-- VERDICT:REJECTED -->
+EOF
+)" --allowed-tools all --yolo
 ```
 
 ### Fresh Context Implementation

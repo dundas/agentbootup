@@ -151,5 +151,5 @@ When reporting validation results:
 - **After merge**: Smoke test in the target environment
 
 ## References
-- See `.claude/skills/task-processor/SKILL.md` for completion criteria
-- See `.claude/agents/reliability-engineer.md` for error handling focus
+- See `.gemini/skills/task-processor/SKILL.md` for completion criteria
+- See `.gemini/agents/reliability-engineer.md` for error handling focus

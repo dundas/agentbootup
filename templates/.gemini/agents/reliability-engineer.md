@@ -91,5 +91,5 @@ You are a reliability-focused engineer specializing in safety-critical features.
   - Highlight safety features in commit messages.
 
 ## References
-- See `.claude/agents/tdd-developer.md`
-- See `.claude/skills/task-processor/SKILL.md`
+- See `.gemini/agents/tdd-developer.md`
+- See `.gemini/skills/task-processor/SKILL.md`
