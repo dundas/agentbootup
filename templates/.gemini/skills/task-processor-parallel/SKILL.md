@@ -34,9 +34,10 @@ Launch multiple phases in parallel when no dependencies exist. Use `run_shell_co
 
 ```bash
 # Batch 1: Independent phases (run in parallel)
-gemini -p "Implement Phase 1..." --allowed-tools all --yolo < /dev/null &
-gemini -p "Implement Phase 5..." --allowed-tools all --yolo < /dev/null &
-gemini -p "Implement Phase 8..." --allowed-tools all --yolo < /dev/null &
+# Note: `-p/--prompt` is deprecated in newer Gemini CLI versions; prefer the positional prompt.
+gemini --approval-mode=yolo "Implement Phase 1..." < /dev/null &
+gemini --approval-mode=yolo "Implement Phase 5..." < /dev/null &
+gemini --approval-mode=yolo "Implement Phase 8..." < /dev/null &
 ```
 
 ### Level 2: Sub-Task Parallelization
@@ -57,17 +58,19 @@ Within a single phase, parallelize independent sub-tasks using the same pattern.
 To launch multiple phases in parallel, use the shell delegation pattern:
 
 ```bash
-gemini -p "You are the tdd-developer. Your Task ID is 1.0. 
-           Implement Phase 1: Comparison.
-           Work through tasks 1.1 through 1.7 from tasks/[task-file].md.
-           Follow test-driven development and commit after each task." \
-       --allowed-tools write_file,run_shell_command,read_file \
-       --yolo < /dev/null &
+gemini --approval-mode=yolo "$(cat <<'EOF'
+You are the tdd-developer. Your Task ID is 1.0.
+Implement Phase 1: Comparison.
+Work through tasks 1.1 through 1.7 from tasks/[task-file].md.
+Follow test-driven development and commit after each task.
+EOF
+)" < /dev/null &
 
-gemini -p "You are the tdd-developer. Your Task ID is 5.0. 
-           Implement Phase 5: Performance..." \
-       --allowed-tools write_file,run_shell_command,read_file \
-       --yolo < /dev/null &
+gemini --approval-mode=yolo "$(cat <<'EOF'
+You are the tdd-developer. Your Task ID is 5.0.
+Implement Phase 5: Performance...
+EOF
+)" < /dev/null &
 ```
 
 ### 4. Monitor Progress

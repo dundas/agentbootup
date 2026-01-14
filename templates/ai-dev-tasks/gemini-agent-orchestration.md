@@ -38,7 +38,8 @@ To spawn a specialized subagent, use the `run_shell_command` tool.
 
 **Basic Syntax:**
 ```bash
-gemini -p "Prompt" --allowed-tools <tools> --yolo < /dev/null &
+# Prefer positional prompts; `-p/--prompt` is deprecated.
+gemini --approval-mode=yolo "Prompt" < /dev/null &
 ```
 
 ### Using Seeded Personas
@@ -46,26 +47,30 @@ gemini -p "Prompt" --allowed-tools <tools> --yolo < /dev/null &
 
 #### Example: Spawning a Technical Planner
 ```bash
-gemini -p "You are the Technical Planner. 
-           Read .gemini/agents/technical-planner.md for your persona. 
-           Analyze the PRD in tasks/0001-prd.md and suggest a technical approach." \
-       --allowed-tools read_file,glob \
-       --yolo \
-       < /dev/null &
+gemini --approval-mode=yolo "$(cat <<'EOF'
+You are the Technical Planner.
+Read .gemini/agents/technical-planner.md for your persona.
+Analyze the PRD in tasks/0001-prd.md and suggest a technical approach.
+EOF
+)" < /dev/null &
 ```
 
 ### Best Practices for Subagents
 1. **Isolated Context**: Use subagents for "heavy lifting" (reading 20+ files) to keep your main chat fast.
-2. **Tool Restriction**: Only grant the subagent the tools it needs (e.g., `read_file`, `web_fetch`).
-3. **The `--yolo` Flag**: Use this only if you trust the prompt, as it allows the subagent to execute tools without asking for confirmation (crucial for background tasks).
-4. **Input Redirection**: Always use `< /dev/null` to ensure the subagent doesn't hang waiting for terminal input.
+2. **Approval Control**: For unattended runs, prefer `--approval-mode=yolo` (or `--yolo` / `-y` where supported). For safer automation, use `--approval-mode=auto_edit` and/or policies.
+3. **Input Redirection**: Always use `< /dev/null` to ensure the subagent doesn't hang waiting for terminal input.
+4. **Monitoring**: Use `jobs -l` / `ps` to track background subagents.
 
 ---
 
-## 4. Native Specialized Agents
+## 4. Native Tools & Optional Delegation
 
-Gemini CLI includes a native specialized agent that I can call directly:
-- **`codebase_investigator`**: Ask me to "Investigate the codebase to find where authentication is handled." I will use this sub-agent to map the repository without filling our chat with every file I read.
+Gemini CLI includes built-in ways to explore codebases without flooding the chat:
+- Use `@path/` to include files/directories in a prompt.
+- Use `/tools` to see available tools.
+- Use `/skills list` to see discovered Agent Skills.
+
+Some Gemini CLI environments may also expose delegation capabilities (e.g., via a `delegate_to_agent` tool). Don’t assume a specific agent like `codebase_investigator` exists unless your environment documents it.
 
 ---
 

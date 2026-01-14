@@ -4,38 +4,74 @@ This file provides guidance to Gemini CLI when working with code in this reposit
 
 ## Project Overview
 
-agentbootup is a CLI tool that seeds agentic development assets (agents, skills, commands, workflows) into any target project. Originally designed for Claude Code and Windsurf, it is being updated to support Gemini CLI natively via the Agent Skills standard.
+agentbootup is a CLI tool that seeds agentic development assets (agents, skills, commands, workflows) into any target project. Originally designed for Claude Code and Windsurf, it also supports Gemini CLI via the Agent Skills standard.
 
-## Core Architecture
+## Gemini CLI Compatibility
 
-### Main Entry Point
-- `bootup.mjs` - The executable CLI script that copies template files from `templates/` to a target project directory.
+- Tested locally with `gemini` CLI `v0.23.0` (run `gemini --version`).
+- Gemini CLI flags evolve quickly; verify your installed version with `gemini --help`.
 
-### Template Structure
+### Headless / scripting invocation
+
+- Prefer the positional prompt (recommended going forward):
+  - `gemini "Explain the architecture of this repo"`
+- `--prompt` / `-p` exists but is deprecated in newer versions.
+
+### Approval / automation
+
+- For non-interactive automation, use approval modes:
+  - `--approval-mode=yolo` (auto-approve all tool calls)
+  - `--approval-mode=auto_edit` (auto-approve edit tools)
+  - `--yolo` / `-y` is also supported as a shortcut in current versions.
+
+## Template Structure (What agentbootup seeds)
+
 Templates are organized under `templates/` and map to specific categories:
 
-1. **Gemini CLI Assets** (`templates/.gemini/`):
-   - `skills/` - Specialized Agent Skills (agentskills.io) including PRD writing, task generation, and workflow orchestration.
-2. **Claude Code Assets** (`templates/.claude/`):
-   - `agents/`, `skills/`, `commands/` - Legacy and parallel support for Claude.
-3. **Windsurf Workflows** (`templates/.windsurf/workflows/`):
-   - Cascade workflow definitions.
-4. **Documentation** (`templates/ai-dev-tasks/`):
-   - Markdown guides for the AI-assisted development workflow.
+1. **Gemini CLI Assets** (`templates/.gemini/`)
+   - `skills/` - Agent Skills (folders containing `SKILL.md` with YAML frontmatter)
+   - `agents/` - Persona reference files (promptable roles)
+   - `commands/` - Slash-command instructions (documentation)
+2. **Claude Code Assets** (`templates/.claude/`)
+   - `agents/`, `skills/`, `commands/` - Parallel support for Claude Code
+3. **Windsurf Workflows** (`templates/.windsurf/workflows/`)
+   - Cascade workflow definitions
+4. **Documentation** (`templates/ai-dev-tasks/`)
+   - Guides for PRD → tasks → implementation workflows
 
 ## Gemini CLI Specifics
 
 ### Agent Skills
-This project implements the **Agent Skills** open standard. Skills are located in `.gemini/skills/<skill-name>/SKILL.md`.
-- Each skill must have a YAML header with `name` and `description`.
-- Activation is handled autonomously by Gemini CLI based on the `description`.
 
-### Subagents
-Gemini CLI handles subagents via the `delegate_to_agent` tool (for specialized agents like `codebase_investigator`) or via shell delegation.
+Skills are located at `.gemini/skills/<skill-name>/SKILL.md`.
+
+- Each skill must have YAML frontmatter with `name` and `description`.
+- Gemini CLI discovers skills from `.gemini/skills/` (project), `~/.gemini/skills/` (user), and extension skills.
+- Skill management is via `/skills ...` and the `gemini skills ...` command (Agent Skills are an experimental feature and may require enabling `experimental.skills` in `/settings`).
+
+### Personas vs “Agents”
+
+This repo seeds persona reference files under `.gemini/agents/`. These are not automatically executed “agents” by the CLI; they’re role descriptions you include in prompts (for example, "You are the reliability engineer; follow `.gemini/agents/reliability-engineer.md`.").
+
+### Subagents (shell delegation)
+
+To keep your main chat focused, you can spawn separate Gemini CLI processes as subagents via the shell.
+
+Example:
+
+```bash
+gemini --approval-mode=yolo "$(cat <<'EOF'
+You are the Technical Planner.
+Read .gemini/agents/technical-planner.md for your persona.
+Summarize the architecture and propose an implementation plan.
+EOF
+)" < /dev/null &
+```
+
+Monitor background jobs with `jobs -l` or `ps`.
 
 ## Common Commands
 
-### Development
 ```bash
 # Run dry-run to preview what would be installed
 node bootup.mjs --dry-run --verbose

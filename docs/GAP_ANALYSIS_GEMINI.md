@@ -8,14 +8,14 @@ This document tracks the gaps between the current implementation of Gemini CLI s
 |-----|-------------|-----------------|--------|
 | **Invalid Versions** | References to "Gemini CLI v2.0.60+". | Replace with "Gemini CLI 0.x". | Done (Parallel, Dialectical) |
 | **Claude-Specific Tools** | References to `Task tool`. | Replace with `run_shell_command`. | Done (Parallel, Dialectical) |
-| **Claude-Specific Commands** | References to `/tasks` or `/stats`. | Replace with `/skills list`. | Done (Parallel) |
+| **Invalid Commands** | References to Claude-specific commands like `/tasks`. | Replace with Gemini CLI equivalents (e.g. `/skills list`, `/stats`) or shell job control. | Done (Parallel) |
 | **Background Syntax** | References to `run_in_background: true`. | Replace with shell `&`. | Done (Parallel) |
 
 ## 2. Tool Invocation & Orchestration (High Priority) [ADDRESSED]
 
 | Gap | Description | Required Change | Status |
 |-----|-------------|-----------------|--------|
-| **Subagent Syntax** | Examples use Claude's `Task()`. | Update to `gemini -p "..."`. | Done (Parallel, Dialectical) |
+| **Subagent Syntax** | Examples use Claude's `Task()`. | Update to `gemini "..."` (positional prompt) or `gemini --prompt "..."` (deprecated). | Done (Parallel, Dialectical) |
 | **Orchestration Logic** | Relies on Claude's multi-call. | Update to show bash parallelization. | Done (Parallel) |
 | **Identity Crisis** | Subagents lack role clarity. | Add "You are the [Role]" to prompts. | Done (Parallel, Dialectical) |
 

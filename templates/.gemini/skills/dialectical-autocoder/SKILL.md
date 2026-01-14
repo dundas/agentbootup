@@ -52,7 +52,7 @@ When Gemini CLI executes this skill, it orchestrates the player-coach loop using
    a. turn_count += 1
 
    b. Launch Player (fresh instance):
-      gemini -p "You are the PLAYER..." --allowed-tools all --yolo
+      gemini --approval-mode=yolo "You are the PLAYER..."
       Prompt includes:
       - Requirements document path
       - Previous coach feedback (if turn > 1)
@@ -66,7 +66,7 @@ When Gemini CLI executes this skill, it orchestrates the player-coach loop using
       - Evidence provided
 
    d. Launch Coach (fresh instance):
-      gemini -p "You are the COACH..." --allowed-tools all --yolo
+      gemini --approval-mode=yolo "You are the COACH..."
       Prompt includes:
       - Requirements document path
       - Player's implementation summary
@@ -89,7 +89,8 @@ When Gemini CLI executes this skill, it orchestrates the player-coach loop using
 
 **Player Turn:**
 ```bash
-gemini -p "$(cat <<'EOF'
+# Prefer positional prompts; `-p/--prompt` is deprecated.
+gemini --approval-mode=yolo "$(cat <<'EOF'
 You are the PLAYER in a dialectical autocoding session.
 
 Requirements: [path/to/requirements.md]
@@ -108,12 +109,13 @@ Your task:
 
 Do NOT review your own work. The coach will validate.
 EOF
-)" --allowed-tools all --yolo
+)"
 ```
 
 **Coach Turn:**
 ```bash
-gemini -p "$(cat <<'EOF'
+# Prefer positional prompts; `-p/--prompt` is deprecated.
+gemini --approval-mode=yolo "$(cat <<'EOF'
 You are the COACH in a dialectical autocoding session.
 
 Requirements: [path/to/requirements.md]
@@ -138,7 +140,7 @@ End your review with exactly one of:
 <!-- VERDICT:REVISE -->
 <!-- VERDICT:REJECTED -->
 EOF
-)" --allowed-tools all --yolo
+)"
 ```
 
 ### Fresh Context Implementation
