@@ -1,6 +1,6 @@
 {
   "name": "agentbootup",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Seed Claude Code, OpenAI Codex, Gemini CLI, and Windsurf development assets (agents, skills, commands, workflows) into any project.",
   "type": "module",
   "bin": {
