@@ -88,9 +88,6 @@ function normalizeNewlines(s) {
   return s.replace(/\r\n/g, '\n');
 }
 
-function replaceAllStable(haystack, needle, replacement) {
-  return haystack.split(needle).join(replacement);
-}
 
 function transformForGemini(content) {
   let out = normalizeNewlines(content);
@@ -112,7 +109,9 @@ function transformForCodex(content) {
   out = out.replace(/\.claude\/skills\//g, '.codex/skills/');
 
   // Codex does not use Claude-style subagents.
-  // Drop agent reference lines rather than leaving broken paths.
+  // Drop standalone agent-reference lines rather than leaving broken paths.
+  // Note: this is intentionally conservative; if a future doc line combines an agent reference
+  // with other content, prefer splitting that line in the source template.
   out = out
     .split('\n')
     .filter((line) => !line.includes('.claude/agents/'))
@@ -289,6 +288,18 @@ function runCheck({ platform, verbose }) {
   return problems;
 }
 
+function cleanupCodexSkills({ verbose }) {
+  const destSkillsRoot = path.join(CODEX_ROOT, 'skills');
+  if (!isDirectory(destSkillsRoot)) return;
+
+  for (const skillName of listChildDirs(destSkillsRoot)) {
+    if (CODEX_SKILLS_ALLOWLIST.has(skillName)) continue;
+    const abs = path.join(destSkillsRoot, skillName);
+    fs.rmSync(abs, { recursive: true, force: true });
+    if (verbose) console.log('removed', path.relative(repoRoot, abs));
+  }
+}
+
 function runWrite({ platform, verbose }) {
   const { expectedFiles, expectedDirs } = buildExpectedOutputs({ platform, mode: 'write' });
 
@@ -301,18 +312,7 @@ function runWrite({ platform, verbose }) {
     if (verbose) console.log('wrote', path.relative(repoRoot, destFile));
   }
 
-  // Clean up codex skills not in allowlist
-  if (platform === 'codex') {
-    const destSkillsRoot = path.join(CODEX_ROOT, 'skills');
-    if (isDirectory(destSkillsRoot)) {
-      for (const skillName of listChildDirs(destSkillsRoot)) {
-        if (CODEX_SKILLS_ALLOWLIST.has(skillName)) continue;
-        const abs = path.join(destSkillsRoot, skillName);
-        fs.rmSync(abs, { recursive: true, force: true });
-        if (verbose) console.log('removed', path.relative(repoRoot, abs));
-      }
-    }
-  }
+  if (platform === 'codex') cleanupCodexSkills({ verbose });
 }
 
 function main() {
