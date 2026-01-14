@@ -8,7 +8,7 @@ description: Process tasks using async background subagents for massive parallel
 ## Prerequisites
 
 **Required:**
-- Gemini CLI (latest version)
+- Gemini CLI (0.x+)
 - Git repository with remote configured
 - GitHub CLI (`gh`) installed and authenticated: `gh auth login`
 - GitHub repository (PR automation features require GitHub)
