@@ -40,7 +40,7 @@ Before starting a dialectical session, verify:
 
 ## Orchestrator Implementation
 
-When Gemini CLI executes this skill, it orchestrates the player-coach loop using the Task tool to launch fresh agent instances each turn.
+When Gemini CLI executes this skill, it orchestrates the player-coach loop using `run_shell_command` to launch fresh agent instances each turn.
 
 ### Technical Flow
 
@@ -52,7 +52,7 @@ When Gemini CLI executes this skill, it orchestrates the player-coach loop using
    a. turn_count += 1
 
    b. Launch Player (fresh instance):
-      Task tool with subagent_type="general-purpose"
+      gemini -p "You are the PLAYER..." --allowed-tools all --yolo
       Prompt includes:
       - Requirements document path
       - Previous coach feedback (if turn > 1)
@@ -66,7 +66,7 @@ When Gemini CLI executes this skill, it orchestrates the player-coach loop using
       - Evidence provided
 
    d. Launch Coach (fresh instance):
-      Task tool with subagent_type="general-purpose"
+      gemini -p "You are the COACH..." --allowed-tools all --yolo
       Prompt includes:
       - Requirements document path
       - Player's implementation summary
@@ -85,14 +85,11 @@ When Gemini CLI executes this skill, it orchestrates the player-coach loop using
 5. Document turn history
 ```
 
-### Task Tool Invocation Example
+### Delegation Examples
 
 **Player Turn:**
-```
-Task tool:
-  subagent_type: "general-purpose"
-  prompt: |
-    You are the PLAYER in a dialectical autocoding session.
+```bash
+gemini -p "You are the PLAYER in a dialectical autocoding session.
 
     Requirements: [path/to/requirements.md]
     Turn: 2 of 5
@@ -108,15 +105,13 @@ Task tool:
     4. Run tests and ensure they pass
     5. Report: files changed, tests added, evidence
 
-    Do NOT review your own work. The coach will validate.
+    Do NOT review your own work. The coach will validate." \
+    --allowed-tools all --yolo
 ```
 
 **Coach Turn:**
-```
-Task tool:
-  subagent_type: "general-purpose"
-  prompt: |
-    You are the COACH in a dialectical autocoding session.
+```bash
+gemini -p "You are the COACH in a dialectical autocoding session.
 
     Requirements: [path/to/requirements.md]
     Turn: 2 of 5
@@ -138,12 +133,13 @@ Task tool:
     End your review with exactly one of:
     <!-- VERDICT:APPROVED -->
     <!-- VERDICT:REVISE -->
-    <!-- VERDICT:REJECTED -->
+    <!-- VERDICT:REJECTED -->" \
+    --allowed-tools all --yolo
 ```
 
 ### Fresh Context Implementation
 
-"Fresh context" means each agent turn uses a NEW Task tool invocation:
+"Fresh context" means each agent turn uses a NEW Gemini CLI execution:
 - Previous conversation history is NOT included
 - Only structured data carries forward:
   - Requirements document (constant)

@@ -8,7 +8,7 @@ description: Process tasks using async background subagents for massive parallel
 ## Prerequisites
 
 **Required:**
-- Gemini CLI v2.0.60+ (for async subagent support)
+- Gemini CLI (latest version)
 - Git repository with remote configured
 - GitHub CLI (`gh`) installed and authenticated: `gh auth login`
 - GitHub repository (PR automation features require GitHub)
@@ -20,132 +20,64 @@ description: Process tasks using async background subagents for massive parallel
 **Non-GitHub Hosting:** If using GitLab, Bitbucket, or other platforms, the PR automation features won't work. You can still use parallel task processing, but create PRs manually.
 
 ## Overview
-Leverages Gemini CLI's async subagents (v2.0.60+) to process multiple tasks in parallel, dramatically reducing implementation time.
+Leverages Gemini CLI's capability to run independent instances via the shell to process multiple tasks in parallel, dramatically reducing implementation time.
 
 ## Key Features
 - **Parallel Execution**: Spawn multiple subagents to work on independent tasks simultaneously
-- **Background Mode**: Subagents run in background, don't block orchestrator
-- **Auto-Notification**: Subagents notify orchestrator when complete
+- **Context Isolation**: Each subagent starts with a clean context window
 - **PR Automation**: Automated gap analysis and PR comments after each phase
 
 ## Parallelization Strategy
 
 ### Level 1: Phase-Level Parallelization
-Launch multiple phases in parallel when no dependencies exist. Use Gemini CLI's Task tool with multiple parallel calls:
+Launch multiple phases in parallel when no dependencies exist. Use `run_shell_command` to spawn background Gemini CLI instances:
 
-```
-// Batch 1: Independent phases (run in parallel)
-// Send a single message with multiple Task tool calls:
-
-Task(subagent_type: "tdd-developer", description: "Phase 1: Comparison", prompt: "...")
-Task(subagent_type: "tdd-developer", description: "Phase 5: Performance", prompt: "...")
-Task(subagent_type: "tdd-developer", description: "Phase 8: Notifications", prompt: "...")
-
-// Wait for all to complete, then launch dependent phases
+```bash
+# Batch 1: Independent phases (run in parallel)
+gemini -p "Implement Phase 1..." --allowed-tools all --yolo < /dev/null &
+gemini -p "Implement Phase 5..." --allowed-tools all --yolo < /dev/null &
+gemini -p "Implement Phase 8..." --allowed-tools all --yolo < /dev/null &
 ```
 
 ### Level 2: Sub-Task Parallelization
-Within a single phase, parallelize independent sub-tasks:
-
-```
-// Phase 1 split into 3 parallel streams (single message, multiple Task calls):
-
-Task(subagent_type: "tdd-developer", description: "Discovery + Normalization", prompt: "Tasks 1.1, 1.2...")
-Task(subagent_type: "tdd-developer", description: "Ranking + Reasoning", prompt: "Tasks 1.3, 1.4...")
-Task(subagent_type: "tdd-developer", description: "Types + Tests", prompt: "Tasks 1.5, 1.6...")
-
-// When all complete → Final task
-Task(subagent_type: "tdd-developer", description: "Create PR", prompt: "Task 1.7...")
-```
+Within a single phase, parallelize independent sub-tasks using the same pattern. Ensure each subagent has a specific Task ID to prevent overlap.
 
 ## Execution Protocol
 
 ### 1. Analyze Dependencies
-```markdown
-Phase Dependencies:
-- Phase 1: None → Start immediately
-- Phase 2: Depends on Phase 1
-- Phase 3: Depends on Phase 2
-- Phase 4: Depends on Phase 3
-- Phase 5: None → Start immediately (parallel to 1-3)
-- Phase 6: Depends on Phase 5
-- Phase 7: Depends on Phase 3 + Phase 5
-- Phase 8: None → Start immediately (parallel to all)
-- Phase 9: Depends on all phases
-```
+[... existing dependency analysis logic ...]
 
 ### 2. Create Execution Batches
-```markdown
-Batch 1 (Parallel):
-- Phase 1 (large effort)
-- Phase 5 (medium effort)
-- Phase 8 (small effort)
-→ Total: Large effort (instead of 3x sequential!)
+[... existing batch logic ...]
 
-Batch 2 (Parallel - after Phase 1):
-- Phase 2 (large effort)
-- Phase 6 (small effort, after Phase 5)
-→ Total: Large effort
+### 3. Spawn Subagents
 
-Batch 3 (Parallel - after Phase 2):
-- Phase 3 (large effort)
-→ Total: Large effort
+**Using `run_shell_command` for background execution:**
 
-Batch 4 (Parallel - after Phase 3):
-- Phase 4 (medium effort)
-- Phase 7 (large effort, also needs Phase 5)
-→ Total: Large effort
+To launch multiple phases in parallel, use the shell delegation pattern:
 
-Batch 5 (Sequential - after all):
-- Phase 9 (medium effort)
-→ Total: Medium effort
+```bash
+gemini -p "You are the tdd-developer. Your Task ID is 1.0. 
+           Implement Phase 1: Comparison.
+           Work through tasks 1.1 through 1.7 from tasks/[task-file].md.
+           Follow test-driven development and commit after each task." \
+       --allowed-tools write_file,run_shell_command,read_file \
+       --yolo < /dev/null &
 
-**Parallel execution reduces total effort by ~25% compared to sequential**
-```
-
-### 3. Spawn Async Subagents
-
-**Using Task Tool (parallel calls in single message):**
-
-To launch multiple phases in parallel, send a single message with multiple Task tool calls:
-
-```
-Task tool call 1:
-  subagent_type: "tdd-developer"
-  description: "Implement Phase 1: Comparison"
-  prompt: "Work through tasks 1.1 through 1.7 from tasks/[task-file].md
-
-    Tasks:
-    - 1.1: Extend discovery engine
-    - 1.2: Create score normalization
-    - 1.3: Build ranking algorithm
-    - 1.4: Add comparison reasoning
-    - 1.5: Create TypeScript types
-    - 1.6: Integration tests
-    - 1.7: Create PR
-
-    Follow test-driven development.
-    Commit after each task.
-    When complete, create PR and run gap analysis."
-
-Task tool call 2 (in same message for parallel execution):
-  subagent_type: "tdd-developer"
-  description: "Implement Phase 5: Performance"
-  prompt: "Work through tasks 5.1 through 5.7..."
-
-// Both subagents run in parallel
-// Results returned when each completes
+gemini -p "You are the tdd-developer. Your Task ID is 5.0. 
+           Implement Phase 5: Performance..." \
+       --allowed-tools write_file,run_shell_command,read_file \
+       --yolo < /dev/null &
 ```
 
 ### 4. Monitor Progress
 
 **Check Subagent Status:**
-```bash
-# List running background tasks
-/tasks
+Use standard shell commands to monitor background processes or check the filesystem for updates (e.g., new commits or PRs).
 
-# Background tasks complete and return results automatically
-# Monitor the conversation for task completion notifications
+```bash
+# Check if gemini processes are running
+ps aux | grep gemini
 ```
 
 ### 5. Collect Results

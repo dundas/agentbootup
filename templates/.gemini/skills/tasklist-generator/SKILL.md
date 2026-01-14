@@ -16,7 +16,7 @@ Create a detailed, step-by-step task list from a given PRD to guide implementati
 ## Process
 1. Receive PRD reference (specific file path).
 2. Analyze PRD (functional requirements, user stories, etc.).
-3. Assess current state of the codebase to identify relevant patterns/components and candidate files.
+3. **Assess current state of the codebase**: Use the specialized `codebase_investigator` agent to identify relevant patterns/components and candidate files. This ensures a deep understanding of the architecture before planning tasks.
 4. Phase 1: Generate parent (high-level) tasks only. Present them to the user and pause.
 5. Wait for user confirmation: proceed only if user replies "Go".
 6. Phase 2: Expand each parent task into actionable sub-tasks with full metadata.
