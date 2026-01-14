@@ -1,6 +1,6 @@
 # agentbootup
 
-Seed Claude Code assets (agents, skills, commands), Gemini CLI assets (skills, agents, commands), Windsurf workflows, and AI Dev Tasks into any project.
+Seed Claude Code assets (agents, skills, commands), OpenAI Codex skills, Gemini CLI assets (skills, agents, commands), Windsurf workflows, and AI Dev Tasks into any project.
 
 ## Install
 
@@ -30,16 +30,17 @@ node bootup.mjs --target . --dry-run --verbose
 node bootup.mjs --target . --force
 
 # Only install specific categories
-node bootup.mjs --target . --subset agents,skills,gemini
+node bootup.mjs --target . --subset agents,skills,gemini,codex
 ```
 
-- Categories: `agents, skills, commands, workflows, docs, scripts, gemini`
+- Categories: `agents, skills, commands, workflows, docs, scripts, gemini, codex`
 - Defaults: installs all; skips existing files unless `--force`
 
 ## What gets installed
 - `.claude/agents/` → project subagents
 - `.claude/skills/` → project skills
 - `.claude/commands/` → convenience commands
+- `.codex/skills/` → repo-scoped Codex Agent Skills
 - `.gemini/skills/` → project Agent Skills
 - `.gemini/agents/` → project reference personas
 - `.gemini/commands/` → convenience commands for Gemini
@@ -50,6 +51,7 @@ node bootup.mjs --target . --subset agents,skills,gemini
 
 ## After seeding
 - Restart Claude Code to reload project assets
+- Restart Codex to reload skills; use `/skills` (or type `$`)
 - Use Windsurf slash commands: `/dev-pipeline`, `/prd-writer`, `/generate-tasks`, `/process-tasks`
 
 ## Scripts

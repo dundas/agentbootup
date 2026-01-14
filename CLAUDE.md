@@ -99,6 +99,24 @@ Tasks are saved to a `tasks/` directory in the target project.
 4. **Portable** - Single file with templates folder, no external dependencies
 5. **Cross-platform** - Path handling works on Windows/Unix via path normalization
 
+## Keeping Templates In Sync
+
+The canonical source for shared agents/skills is `templates/.claude/**`.
+
+```bash
+# Regenerate derived templates
+npm run sync-templates
+
+# Verify everything is synced (useful for CI)
+npm run check-templates
+```
+
+Notes:
+- `templates/.gemini/**` is generated from Claude templates except for:
+  - `templates/.gemini/skills/dialectical-autocoder/**`
+  - `templates/.gemini/skills/task-processor-parallel/**`
+- `templates/.codex/skills/**` is generated from Claude templates for the allowlisted skills (see `scripts/sync-templates.mjs`).
+
 ## Important File Paths
 
 - Main script: `bootup.mjs`

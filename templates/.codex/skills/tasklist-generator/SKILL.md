@@ -192,5 +192,3 @@ Signs a parent task is too large:
 
 ## References
 - See `reference.md`.
-- See `.gemini/agents/tdd-developer.md`
-- See `.gemini/agents/reliability-engineer.md`
