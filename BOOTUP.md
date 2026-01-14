@@ -1,8 +1,10 @@
-# Bootup: Seed Claude Code + Gemini + Windsurf into Any Project
+# Bootup: Seed Claude Code + Codex + Gemini + Windsurf into Any Project
 
 ## What it does
 - Adds project-level Claude Code assets:
   - `.claude/agents/`, `.claude/skills/`, `.claude/commands/`
+- Adds project-level OpenAI Codex assets:
+  - `.codex/skills/` (Agent Skills: prd-writer, tasklist-generator, task-processor, etc.)
 - Adds project-level Gemini CLI assets:
   - `.gemini/skills/` (Agent Skills: prd-writer, tasklist-generator, task-processor, etc.)
   - `.gemini/agents/` (Persona reference files)
@@ -31,11 +33,12 @@ node bootup.mjs --target . --dry-run --verbose
 node bootup.mjs --target . --force
 
 # Install a subset only
-node bootup.mjs --target . --subset agents,skills,gemini
+node bootup.mjs --target . --subset agents,skills,gemini,codex
 ```
 
 ## After seeding
 - Restart Claude Code to reload project agents/skills/commands
+- Restart Codex to reload skills; run `/skills` (or type `$`) to invoke
 - In Gemini CLI: skills are auto-discovered; use `/skills list`
 - In Windsurf (Cascade): use `/dev-pipeline` or `/prd-writer` etc.
 - Tasks will be saved to `tasks/`

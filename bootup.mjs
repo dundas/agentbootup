@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// Portable bootup script to seed Claude Code agents, skills, commands,
-// Windsurf workflows, and AI Dev Tasks into any project.
+// Portable bootup script to seed Claude Code assets, OpenAI Codex skills,
+// Gemini CLI assets, Windsurf workflows, and AI Dev Tasks into any project.
 // Usage:
 //   node bootstrap/bootup.mjs [--target <dir>] [--subset <csv>] [--force] [--dry-run] [--verbose]
-//   subsets: agents,skills,commands,workflows,docs (default: all)
+//   subsets: agents,skills,commands,workflows,docs,scripts,gemini,codex (default: all)
 
 import fs from 'fs';
 import path from 'path';
@@ -15,7 +15,7 @@ const __dirname = path.dirname(__filename);
 const templatesRoot = path.join(__dirname, 'templates');
 
 function parseArgs(argv) {
-  const args = { target: process.cwd(), subset: ['agents','skills','commands','workflows','docs','scripts','gemini'], force: false, dryRun: false, verbose: false };
+  const args = { target: process.cwd(), subset: ['agents','skills','commands','workflows','docs','scripts','gemini','codex'], force: false, dryRun: false, verbose: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--target' && argv[i+1]) { args.target = path.resolve(argv[++i]); }
@@ -31,10 +31,10 @@ function parseArgs(argv) {
 }
 
 function printHelpAndExit(code = 0) {
-  console.log(`\nBootup - Seed Claude Code + Windsurf + Gemini into any project\n\n` +
+  console.log(`\nBootup - Seed Claude Code + Windsurf + Gemini + Codex into any project\n\n` +
 `Options:\n` +
 `  --target <dir>     Target project directory (default: CWD)\n` +
-`  --subset <csv>     Which templates to install: agents,skills,commands,workflows,docs,scripts,gemini (default: all)\n` +
+`  --subset <csv>     Which templates to install: agents,skills,commands,workflows,docs,scripts,gemini,codex (default: all)\n` +
 `  --force            Overwrite existing files\n` +
 `  --dry-run          Preview actions without writing\n` +
 `  --verbose          Print each file action\n`);
@@ -50,6 +50,7 @@ function relToCategory(relPath) {
   if (relPath.startsWith('.claude/skills/')) return 'skills';
   if (relPath.startsWith('.claude/commands/')) return 'commands';
   if (relPath.startsWith('.gemini/')) return 'gemini';
+  if (relPath.startsWith('.codex/')) return 'codex';
   if (relPath.startsWith('.windsurf/workflows/')) return 'workflows';
   if (relPath.startsWith('ai-dev-tasks/')) return 'docs';
   if (relPath.startsWith('tasks/')) return 'docs';
@@ -120,8 +121,10 @@ function run() {
   console.log('Target:', args.target);
   console.log('\nNext steps:');
   console.log('  - Restart Claude Code if running to reload agents/skills/commands');
+  console.log('  - Restart Codex if running to reload skills');
   console.log('  - In Windsurf, use /dev-pipeline or individual workflows');
   console.log('  - In Gemini CLI, skills will be auto-discovered; use /skills list to verify');
+  console.log('  - In Codex CLI/IDE, run /skills (or type $) to invoke skills');
 }
 
 try {

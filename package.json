@@ -1,7 +1,7 @@
 {
   "name": "agentbootup",
   "version": "0.3.0",
-  "description": "Seed Claude Code, Gemini CLI, and Windsurf development assets (agents, skills, commands, workflows) into any project.",
+  "description": "Seed Claude Code, OpenAI Codex, Gemini CLI, and Windsurf development assets (agents, skills, commands, workflows) into any project.",
   "type": "module",
   "bin": {
     "agentbootup": "./bootup.mjs"
@@ -19,6 +19,7 @@
   "keywords": [
     "claude",
     "claude-code",
+    "codex",
     "gemini",
     "gemini-cli",
     "windsurf",
@@ -34,6 +35,8 @@
   "author": "",
   "scripts": {
     "dry-run": "node ./bootup.mjs --dry-run --verbose",
+    "sync-templates": "node ./scripts/sync-templates.mjs",
+    "check-templates": "node ./scripts/sync-templates.mjs --check",
     "test": "node -e 'console.log(\"ok\")'"
   }
 }
