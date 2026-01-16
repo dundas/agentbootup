@@ -149,20 +149,67 @@ description: Process tasks autonomously with automated PR reviews and gap analys
 7. Commit and push gap analysis
 8. Add detailed comment to PR
 
-### Phase 4: Address Review Feedback (if needed)
-1. If gap analysis shows issues:
-   - Fix issues
-   - Commit: `fix(scope): address PR feedback`
-   - Push to PR branch
-   - Re-run gap analysis
-   - Update PR comment
+### Phase 4: Automated Review Loop
 
-### Phase 5: Merge
-1. When gap analysis shows "Ready to merge":
-   - User reviews and approves
-   - Squash merge to main
-   - Delete branch
-   - Move to next parent task
+**Invoke the `pr-review-loop` skill for full automation.**
+
+See `.claude/skills/pr-review-loop/SKILL.md` for detailed protocol.
+
+Summary of automated review loop:
+
+1. **Poll for Reviews (Indefinite)**
+   - Check every 60 seconds for new reviews
+   - Status update every 5 minutes: "Still waiting for review..."
+   - After 30 minutes: add reminder comment to PR
+
+2. **AI Analysis of Review Comments**
+   - Classify each comment: BLOCKING | IMPORTANT | NIT | QUESTION | PRAISE
+   - Generate gap analysis with categorized issues
+
+3. **Implement Fixes (if blocking issues)**
+   - For each blocking issue:
+     - Read relevant file context
+     - Implement fix using appropriate agent (tdd-developer, reliability-engineer)
+     - Run tests to verify
+   - Commit: `fix(review): address PR feedback`
+   - Push to PR branch
+   - Add detailed PR comment describing changes
+   - Loop back to wait for re-review
+
+4. **CI Verification**
+   - Wait for all CI checks to pass
+   - If CI fails: analyze, fix, push, wait for re-run
+   - Block merge until CI is green
+
+### Phase 5: Automated Merge
+
+**Pre-merge checklist (all must be true):**
+- [ ] Review state is APPROVED (or no blocking issues remain)
+- [ ] All CI checks are green
+- [ ] No unresolved conversations
+- [ ] Branch is not behind base (no merge conflicts)
+
+**Merge execution:**
+```bash
+# Squash merge with detailed message
+gh pr merge [PR-number] --squash --delete-branch \
+  --subject "[PR title]" \
+  --body "Detailed description of changes
+
+Reviewed-by: [reviewer(s)]
+"
+```
+
+**Post-merge:**
+1. **Update CHANGELOG.md** (handled by pr-review-loop)
+   - Parses PR title for conventional commit type
+   - Adds entry to appropriate section (Added/Fixed/Changed/etc.)
+   - Includes: description, PR number, author, date
+   - Commits and pushes to main
+2. Update task list: mark parent task `[x]` completed
+3. Add merge commit SHA as reference
+4. Trigger next dependent task (if task list specifies dependencies)
+5. Log: "Phase X complete. PR #[number] merged. CHANGELOG updated. Moving to next parent task."
 
 ## Task List Maintenance
 1. Update task list after each sub-task: mark `[x]`
@@ -341,3 +388,6 @@ THIS IS WRONG - The task is NOT complete if end-to-end doesn't work!
 ## References
 - See `reference.md`
 - Original task-processor: `.claude/skills/task-processor/SKILL.md`
+- PR Review Loop: `.claude/skills/pr-review-loop/SKILL.md`
+- TDD Developer Agent: `.claude/agents/tdd-developer.md`
+- Reliability Engineer Agent: `.claude/agents/reliability-engineer.md`

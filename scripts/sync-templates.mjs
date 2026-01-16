@@ -24,10 +24,14 @@ const GEMINI_SKILL_OVERRIDES = new Set([
 const CODEX_SKILLS_ALLOWLIST = new Set([
   // Codex supports skills but not Claude-style subagents.
   // Keep this list small and only include skills we validate.
+  'changelog-manager',
   'dev-workflow-orchestrator',
+  'pr-review-loop',
   'prd-writer',
   'task-processor',
+  'task-processor-auto',
   'tasklist-generator',
+  'test-plan-generator',
 ]);
 
 function parseArgs(argv) {
