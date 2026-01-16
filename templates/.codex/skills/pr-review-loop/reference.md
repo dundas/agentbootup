@@ -155,7 +155,7 @@ Respond with JSON:
 | Questions | N | 💬 Need response |
 
 **Verdict:** NOT READY / READY TO MERGE
-**Estimated Fix Time:** [estimate]
+**Fix Complexity:** [trivial/small/medium/large]
 
 ---
 

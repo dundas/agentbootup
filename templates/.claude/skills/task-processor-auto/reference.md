@@ -104,11 +104,11 @@ Process task lists autonomously with automated PR reviews and gap analysis after
 2. Fix critical issue 2
 3. (Optional) Address nice-to-haves
 
-**Estimated Time to Merge:** [immediate / X hours / X days]
+**Fix Complexity:** [trivial/small/medium/large]
 
 ---
 
-## Review Timeline
+## Review Milestones
 - Created: YYYY-MM-DD HH:MM
 - First Review: YYYY-MM-DD HH:MM
 - Gap Analysis: YYYY-MM-DD HH:MM

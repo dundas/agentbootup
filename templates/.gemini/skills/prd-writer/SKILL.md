@@ -45,5 +45,10 @@ Create a detailed Product Requirements Document (PRD) in Markdown from an initia
 - Always ask clarifying questions before writing.
 - Incorporate the answers and refine the PRD accordingly.
 
+## Key Principles
+- **No Arbitrary Timeframes**: Never include time estimates, schedules, or delivery dates (e.g., "this will take 2-3 weeks", "Phase 1 in Q1"). Focus on what needs to be done, not when. Let users decide scheduling.
+- **Actionable Requirements**: Provide concrete implementation steps and dependencies instead of timelines.
+- **Complexity Over Duration**: If needed, indicate relative complexity (trivial/small/medium/large) rather than time estimates.
+
 ## References
 - See `reference.md`.
