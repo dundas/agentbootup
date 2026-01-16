@@ -153,7 +153,7 @@ description: Process tasks autonomously with automated PR reviews and gap analys
 
 **Invoke the `pr-review-loop` skill for full automation.**
 
-See `.gemini/skills/pr-review-loop/SKILL.md` for detailed protocol.
+See `.codex/skills/pr-review-loop/SKILL.md` for detailed protocol.
 
 Summary of automated review loop:
 
@@ -197,7 +197,7 @@ gh pr merge [PR-number] --squash --delete-branch \
   --body "Detailed description of changes
 
 Reviewed-by: [reviewer(s)]
-Co-Authored-By: Gemini CLI <noreply@anthropic.com>"
+Co-Authored-By: Codex <noreply@anthropic.com>"
 ```
 
 **Post-merge:**
@@ -387,7 +387,5 @@ THIS IS WRONG - The task is NOT complete if end-to-end doesn't work!
 
 ## References
 - See `reference.md`
-- Original task-processor: `.gemini/skills/task-processor/SKILL.md`
-- PR Review Loop: `.gemini/skills/pr-review-loop/SKILL.md`
-- TDD Developer Agent: `.gemini/agents/tdd-developer.md`
-- Reliability Engineer Agent: `.gemini/agents/reliability-engineer.md`
+- Original task-processor: `.codex/skills/task-processor/SKILL.md`
+- PR Review Loop: `.codex/skills/pr-review-loop/SKILL.md`
