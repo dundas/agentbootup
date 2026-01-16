@@ -28,11 +28,14 @@ const CODEX_SKILLS_ALLOWLIST = new Set([
   'dev-workflow-orchestrator',
   'pr-review-loop',
   'prd-writer',
+  'production-readiness',
   'runbook-generator',
   'task-processor',
   'task-processor-auto',
   'tasklist-generator',
   'test-plan-generator',
+  'user-journey-mapper',
+  'user-story-generator',
 ]);
 
 function parseArgs(argv) {
@@ -126,6 +129,143 @@ function transformForCodex(content) {
   out = out.replace(/\bClaude Code\b/g, 'Codex');
 
   return out;
+}
+
+function parseFrontmatter(content) {
+  // Extract YAML frontmatter from markdown
+  const match = content.match(/^---\n([\s\S]*?)\n---/);
+  if (!match) return {};
+
+  const yaml = match[1];
+  const metadata = {};
+
+  for (const line of yaml.split('\n')) {
+    const [key, ...valueParts] = line.split(':');
+    if (key && valueParts.length > 0) {
+      const value = valueParts.join(':').trim();
+      metadata[key.trim()] = value;
+    }
+  }
+
+  return metadata;
+}
+
+function shouldAutoGenerate(skillContent) {
+  const metadata = parseFrontmatter(skillContent);
+  // Default to true if not specified
+  return metadata.auto_generate !== 'false';
+}
+
+function generateCommand(skillName, skillContent) {
+  const metadata = parseFrontmatter(skillContent);
+  const description = metadata.description || `Run the ${skillName} skill`;
+
+  return `<!-- AUTO-GENERATED from .claude/skills/${skillName}/SKILL.md -->
+---
+name: ${skillName}
+description: ${description}
+---
+
+# ${titleCase(skillName)} Command
+
+${description.charAt(0).toUpperCase() + description.slice(1)}.
+
+## Usage
+
+\`\`\`
+/${skillName}
+\`\`\`
+
+## What It Does
+
+This command invokes the \`${skillName}\` skill. See the skill documentation for detailed process steps.
+
+## Skill Reference
+
+This command invokes: \`@skills/${skillName}\`
+
+See \`@skills/${skillName}/SKILL.md\` for full documentation and \`@skills/${skillName}/reference.md\` for examples.
+`;
+}
+
+function generateWorkflow(skillName, skillContent) {
+  const metadata = parseFrontmatter(skillContent);
+  const description = metadata.description || `Run the ${skillName} skill`;
+
+  // Extract ## Process section from SKILL.md
+  const processMatch = skillContent.match(/## Process\n\n([\s\S]*?)(?=\n## |$)/);
+  const processSteps = processMatch ? processMatch[1].trim() : 'See @skills/' + skillName + '/SKILL.md for process steps.';
+
+  // Extract ## Input and ## Output sections
+  const inputMatch = skillContent.match(/## Input\n([\s\S]*?)(?=\n## |$)/);
+  const outputMatch = skillContent.match(/## Output\n([\s\S]*?)(?=\n## |$)/);
+
+  const inputSection = inputMatch ? inputMatch[1].trim() : 'See skill documentation';
+  const outputSection = outputMatch ? outputMatch[1].trim() : 'See skill documentation';
+
+  return `<!-- AUTO-GENERATED from .claude/skills/${skillName}/SKILL.md -->
+# ${titleCase(skillName)}
+
+${description.charAt(0).toUpperCase() + description.slice(1)}.
+
+## Input
+${inputSection}
+
+## Steps
+
+${processSteps}
+
+## Output
+${outputSection}
+
+## Reference
+
+Use @skills/${skillName}/SKILL.md for detailed process documentation.
+`;
+}
+
+function generateAiDevTask(skillName, skillContent) {
+  // For ai-dev-tasks, we create a simplified "Rule" format
+  const metadata = parseFrontmatter(skillContent);
+  const description = metadata.description || `Run the ${skillName} skill`;
+
+  // Extract Goal, Input, Output, Process sections
+  const goalMatch = skillContent.match(/## Goal\n([\s\S]*?)(?=\n## |$)/);
+  const inputMatch = skillContent.match(/## Input\n([\s\S]*?)(?=\n## |$)/);
+  const outputMatch = skillContent.match(/## Output\n([\s\S]*?)(?=\n## |$)/);
+  const processMatch = skillContent.match(/## Process\n\n([\s\S]*?)(?=\n## |$)/);
+
+  const goal = goalMatch ? goalMatch[1].trim() : description;
+  const input = inputMatch ? inputMatch[1].trim() : 'See documentation';
+  const output = outputMatch ? outputMatch[1].trim() : 'See documentation';
+  const process = processMatch ? processMatch[1].trim() : 'See SKILL.md';
+
+  return `<!-- AUTO-GENERATED from .claude/skills/${skillName}/SKILL.md -->
+# Rule: ${titleCase(skillName)}
+
+## Goal
+
+${goal}
+
+## Output
+
+${output}
+
+## Process
+
+${process}
+
+---
+
+*This is an auto-generated reference. For full documentation with examples, see \`.claude/skills/${skillName}/SKILL.md\` and \`reference.md\`.*
+`;
+}
+
+function titleCase(str) {
+  return str
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 }
 
 function buildExpectedOutputs({ platform, mode }) {
@@ -320,6 +460,58 @@ function runWrite({ platform, verbose }) {
   if (platform === 'codex') cleanupCodexSkills({ verbose });
 }
 
+function autoGenerateSupportingFiles({ verbose }) {
+  const srcSkillsRoot = path.join(CLAUDE_ROOT, 'skills');
+  const commandsDir = path.join(CLAUDE_ROOT, 'commands');
+  const workflowsDir = path.join(templatesRoot, '.windsurf', 'workflows');
+  const aiDevTasksDir = path.join(templatesRoot, 'ai-dev-tasks');
+
+  ensureDir(commandsDir);
+  ensureDir(workflowsDir);
+  ensureDir(aiDevTasksDir);
+
+  let generated = 0;
+
+  for (const skillName of listChildDirs(srcSkillsRoot)) {
+    const skillMdPath = path.join(srcSkillsRoot, skillName, 'SKILL.md');
+    if (!isFile(skillMdPath)) continue;
+
+    const skillContent = readUtf8(skillMdPath);
+    if (!shouldAutoGenerate(skillContent)) {
+      if (verbose) console.log(`skip (auto_generate: false): ${skillName}`);
+      continue;
+    }
+
+    // Generate command if doesn't exist
+    const commandPath = path.join(commandsDir, `${skillName}.md`);
+    if (!isFile(commandPath)) {
+      fs.writeFileSync(commandPath, generateCommand(skillName, skillContent));
+      if (verbose) console.log(`generated command: ${skillName}.md`);
+      generated++;
+    }
+
+    // Generate workflow if doesn't exist
+    const workflowPath = path.join(workflowsDir, `${skillName}.md`);
+    if (!isFile(workflowPath)) {
+      fs.writeFileSync(workflowPath, generateWorkflow(skillName, skillContent));
+      if (verbose) console.log(`generated workflow: ${skillName}.md`);
+      generated++;
+    }
+
+    // Generate ai-dev-task if doesn't exist
+    const aiDevTaskPath = path.join(aiDevTasksDir, `${skillName}.md`);
+    if (!isFile(aiDevTaskPath)) {
+      fs.writeFileSync(aiDevTaskPath, generateAiDevTask(skillName, skillContent));
+      if (verbose) console.log(`generated ai-dev-task: ${skillName}.md`);
+      generated++;
+    }
+  }
+
+  if (verbose || generated > 0) {
+    console.log(`Auto-generated ${generated} supporting files from SKILL.md`);
+  }
+}
+
 function main() {
   const args = parseArgs(process.argv.slice(2));
 
@@ -340,6 +532,10 @@ function main() {
     return;
   }
 
+  // Auto-generate supporting files from Claude skills (commands, workflows, ai-dev-tasks)
+  autoGenerateSupportingFiles({ verbose: args.verbose });
+
+  // Sync Claude skills to Gemini and Codex
   for (const platform of platforms) {
     runWrite({ platform, verbose: args.verbose });
   }
