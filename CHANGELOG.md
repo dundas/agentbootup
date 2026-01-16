@@ -18,6 +18,9 @@ with enhanced attribution to track which AI model/CLI made each change.
 
 ### Changed
 
+- Removed arbitrary timeframes from PRD and task skills (Claude Code, 2026-01-16)
+  - **Context:** PR #12
+
 ### Deprecated
 
 ### Removed
