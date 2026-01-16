@@ -28,6 +28,7 @@ const CODEX_SKILLS_ALLOWLIST = new Set([
   'dev-workflow-orchestrator',
   'pr-review-loop',
   'prd-writer',
+  'runbook-generator',
   'task-processor',
   'task-processor-auto',
   'tasklist-generator',
