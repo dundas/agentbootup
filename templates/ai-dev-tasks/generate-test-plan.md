@@ -7,7 +7,7 @@ To guide an AI assistant in creating a comprehensive, executable End-to-End Test
 ## Output
 
 - **Format:** Markdown (`.md`)
-- **Location:** `/tasks/`
+- **Location:** `docs/testplans/`
 - **Filename:** `testplan-[source].md`
   - From PRD: `testplan-0001-prd-feature.md`
   - From task list: `testplan-tasks-0001-prd-feature.md`
@@ -121,7 +121,7 @@ To guide an AI assistant in creating a comprehensive, executable End-to-End Test
     Show the generated test plan to the user before saving.
 
 13. **Save Test Plan**
-    Save to `/tasks/testplan-[source].md`
+    Save to `docs/testplans/testplan-[source].md`
 
 ## Output Format
 

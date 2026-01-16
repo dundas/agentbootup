@@ -9,13 +9,13 @@ description: Generate comprehensive E2E test plans from PRDs, task lists, or des
 Create a detailed, executable End-to-End Test Plan that an AI agent or developer can follow to verify a feature works correctly, track issues, and iterate to completion.
 
 ## Input Sources (Auto-Detect)
-1. **PRD File** - Generate test plan from `/tasks/[n]-prd-*.md`
-2. **Task List** - Generate test plan from `/tasks/tasks-*.md`
+1. **PRD File** - Generate test plan from `docs/prds/[n]-prd-*.md`
+2. **Task List** - Generate test plan from `docs/tasks/tasks-*.md`
 3. **Text Description** - Generate from user's verbal description
 
 ## Output
 - **Format:** Markdown (`.md`)
-- **Location:** `/tasks/`
+- **Location:** `docs/testplans/`
 - **Filename:** `testplan-[source].md`
   - From PRD: `testplan-0001-prd-user-auth.md`
   - From tasks: `testplan-tasks-0001-prd-user-auth.md`
@@ -185,7 +185,7 @@ Create a detailed, executable End-to-End Test Plan that an AI agent or developer
 ### Phase 3: Review & Save
 
 13. **Present draft to user for review**
-14. **Save to `/tasks/testplan-[source].md`**
+14. **Save to `docs/testplans/testplan-[source].md`**
 
 ---
 

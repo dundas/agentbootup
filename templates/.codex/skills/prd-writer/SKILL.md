@@ -12,7 +12,7 @@ Create a detailed Product Requirements Document (PRD) in Markdown from an initia
 1. Receive initial prompt from user.
 2. Ask clarifying questions before writing. Provide options in letter/number lists for easy replies.
 3. Generate the PRD using the structure below.
-4. Save as `[n]-prd-[feature-name].md` under `/tasks/` where `n` is zero‑padded (e.g., `0001-prd-user-authentication.md`).
+4. Save as `[n]-prd-[feature-name].md` under `docs/prds/` where `n` is zero‑padded (e.g., `0001-prd-user-authentication.md`).
 
 ### Clarifying questions (guide)
 - Problem/Goal: What problem does this solve? What is the main goal?
@@ -38,7 +38,7 @@ Create a detailed Product Requirements Document (PRD) in Markdown from an initia
 
 ## Output
 - Format: Markdown (.md)
-- Location: `/tasks/`
+- Location: `docs/prds/`
 - Filename pattern: `[n]-prd-[feature-name].md`
 
 ## Interaction

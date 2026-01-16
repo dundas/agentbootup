@@ -10,7 +10,7 @@ Create a detailed, step-by-step task list from a given PRD to guide implementati
 
 ## Output
 - Format: Markdown (.md)
-- Location: `/tasks/` (create directory if it doesn't exist)
+- Location: `docs/tasks/` (create directory if it doesn't exist)
 - Filename: `tasks-[prd-file-name].md` (e.g., `tasks-0001-prd-user-profile-editing.md`)
 
 ## Process
@@ -23,14 +23,14 @@ Create a detailed, step-by-step task list from a given PRD to guide implementati
 7. Identify relevant files (to create/modify) and associated tests.
 8. Assign agents to each task based on task type.
 9. Define commit messages and PR strategy.
-10. Generate final output and save to `/tasks/` with required filename.
+10. Generate final output and save to `docs/tasks/` with required filename.
 
 ## Output Format
 
 ```markdown
 # Task List: [Feature Name]
 
-**Source PRD:** `docs/PRD_[name].md`
+**Source PRD:** `docs/prds/[n]-prd-[name].md`
 **Generated:** YYYY-MM-DD
 
 ---
