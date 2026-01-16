@@ -109,8 +109,8 @@ Production "secrets":
 - **Git credentials** for pushing tags
 
 Docs:
-- Publishing workflow: `package.json:36` (see `scripts` section)
-- Changelog: `CHANGELOG.md:1`
+- Publishing workflow: See `scripts` section in `package.json`
+- Changelog: `CHANGELOG.md`
 
 ---
 
@@ -129,30 +129,45 @@ cat package.json | grep version
 ```
 
 **2) Update version**
+
+Choose one of two approaches:
+
+**Approach A: Using npm version (recommended)**
 ```bash
-# Manually edit package.json version field
-# Or use npm version (creates git tag automatically):
+# npm version automatically commits and tags
 npm version patch   # 0.4.0 -> 0.4.1
 npm version minor   # 0.4.0 -> 0.5.0
 npm version major   # 0.4.0 -> 1.0.0
+
+# Push commit and tag
+git push origin main --follow-tags
 ```
 
-**3) Commit version bump**
+**Approach B: Manual version bump**
 ```bash
+# 1. Manually edit package.json version field
+# 2. Commit and tag
 git add package.json
 git commit -m "0.5.0"
 git tag 0.5.0
+
+# 3. Push commit and tag
 git push origin main
 git push origin 0.5.0
 ```
 
+**3) Authenticate with npm**
+
 **4) Authenticate with npm**
 ```bash
-# Option A: Interactive login
+# Option A: Interactive login (recommended)
 npm login
 
 # Option B: Token-based auth
-echo "//registry.npmjs.org/:_authToken=YOUR_TOKEN" > ~/.npmrc
+npm config set //registry.npmjs.org/:_authToken YOUR_TOKEN
+
+# WARNING: Don't use > to overwrite ~/.npmrc - it may delete other configs!
+# If you must write directly: use >> to append instead of >
 ```
 
 **5) Publish to npm**
