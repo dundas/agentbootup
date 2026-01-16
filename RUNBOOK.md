@@ -157,20 +157,21 @@ git push origin 0.5.0
 ```
 
 **3) Authenticate with npm**
-
-**4) Authenticate with npm**
 ```bash
 # Option A: Interactive login (recommended)
 npm login
 
-# Option B: Token-based auth
+# Option B: Token-based auth (for CI/CD)
 npm config set //registry.npmjs.org/:_authToken YOUR_TOKEN
 
-# WARNING: Don't use > to overwrite ~/.npmrc - it may delete other configs!
-# If you must write directly: use >> to append instead of >
+# SECURITY WARNING:
+# - Never commit ~/.npmrc to git (contains sensitive tokens)
+# - For local dev: Use 'npm login' (interactive)
+# - For CI/CD: Use environment variables (NPM_TOKEN) instead of file-based auth
+# - Don't use shell redirection (> or >>) to write tokens - use npm config set
 ```
 
-**5) Publish to npm**
+**4) Publish to npm**
 ```bash
 npm publish
 
@@ -178,7 +179,7 @@ npm publish
 npm view agentbootup version  # Should show new version
 ```
 
-**6) Verify installation**
+**5) Verify installation**
 ```bash
 # Test global install
 npx agentbootup@latest --dry-run
@@ -254,6 +255,7 @@ agentbootup --target /tmp/smoke-test --dry-run
 3. **Add to CODEX_SKILLS_ALLOWLIST** (if needed)
    - Edit `scripts/sync-templates.mjs`
    - Add skill name to `CODEX_SKILLS_ALLOWLIST` Set
+   - Note: Codex supports skills but not Claude-style subagents. Only add validated skills that work in Codex.
 
 4. **Sync templates**
    ```bash
@@ -303,7 +305,7 @@ agentbootup --target /tmp/smoke-test --dry-run
 - **Subset filtering**: Valid subsets are: `agents`, `skills`, `commands`, `workflows`, `docs`. Use comma-separated list: `--subset agents,skills`.
 - **npm publish errors**: If you see "E404 Not found", you likely need to authenticate with `npm login`.
 - **Access token expired**: npm tokens expire. Generate a new one at https://www.npmjs.com/settings/tokens and update `~/.npmrc`.
-- **Path normalization**: agentbootup works on Windows and Unix. Use forward slashes in `--target` paths (they're normalized automatically).
+- **Path normalization**: agentbootup works cross-platform (Windows and Unix). Both forward slashes (`/`) and backslashes (`\`) work in `--target` paths - they're normalized automatically by Node.js path handling.
 - **Testing changes locally**: Use `node bootup.mjs` directly instead of `npx agentbootup` to test uncommitted changes.
 - **Forgetting to push tags**: After `git tag`, remember to `git push origin <tag-name>` so GitHub shows the release.
 - **CODEX_SKILLS_ALLOWLIST**: Not all Claude skills work in Codex. Only add validated skills to the allowlist in `sync-templates.mjs`.
