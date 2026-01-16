@@ -184,7 +184,13 @@ Signs a parent task is too large:
 - More than 10-12 sub-tasks
 - Touches more than 8-10 files
 - Multiple distinct functional areas
-- Would take more than a single focused work session
+- Combines distinct functional concerns that could be separated
+
+## Key Principles
+- **No Arbitrary Timeframes**: Never include time estimates, schedules, or delivery dates (e.g., "this will take 2 weeks", "Day 1", "Sprint 1"). Focus on what needs to be done and dependencies, not when.
+- **Effort Over Duration**: Use relative effort indicators (Small/Medium/Large) to describe complexity, not time to complete.
+- **Dependencies Over Timelines**: Show task dependencies and order of operations instead of suggesting schedules.
+- **Actionable Steps**: Break work into concrete implementation steps that can be executed without time-based planning.
 
 ## Interaction Model
 - Explicit pause after parent tasks; proceed with sub-tasks only after "Go".

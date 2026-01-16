@@ -153,7 +153,7 @@ Automate the PR review cycle: wait for review → analyze feedback → implement
    ### Verdict
    - **Ready to Merge:** No
    - **Blocking Count:** N issues
-   - **Estimated Fix Effort:** [time estimate]
+   - **Fix Complexity:** [trivial/small/medium/large]
    ```
 
 ### Phase 4: Fix Implementation Loop
