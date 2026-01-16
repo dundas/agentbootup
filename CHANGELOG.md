@@ -11,6 +11,8 @@ with enhanced attribution to track which AI model/CLI made each change.
 
 - Test plan generator, PR review loop, and changelog manager skills (Claude Code, 2026-01-16)
   - **Context:** PR #9
+- Operational runbook documenting local and production requirements (Claude Code, 2026-01-16)
+  - **Context:** PR #11
 
 ### Fixed
 
