@@ -284,7 +284,7 @@ git commit -m "docs(changelog): add entry for user profile editing
 
 Added by Gemini CLI
 
-Co-Authored-By: Gemini CLI <noreply@anthropic.com>"
+"
 ```
 
 ### Auto Entry (from PR)
@@ -294,7 +294,7 @@ git commit -m "docs(changelog): update for PR #42
 Added by Gemini CLI
 Context: PRD tasks/0001-prd-user-profile.md | Task 1.2
 
-Co-Authored-By: Gemini CLI <noreply@anthropic.com>"
+"
 ```
 
 ### Version Release

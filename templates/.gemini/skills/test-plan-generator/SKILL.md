@@ -250,6 +250,12 @@ curl -f http://localhost:XXXX/health
 
 ### 3. Environment Setup
 
+⚠️ **SECURITY WARNING**
+- **Never commit credentials to version control**
+- Ensure `.env`, `.env.local`, `.env.*.local` are in `.gitignore`
+- Use secure storage for sensitive values (1Password, AWS Secrets Manager, etc.)
+- Production credentials should NEVER be in local `.env` files
+
 ```bash
 # Copy environment template
 cp .env.example .env.local
@@ -257,16 +263,25 @@ cp .env.example .env.local
 # Required variables (set these):
 # - DATABASE_URL=...
 # - API_KEY=...
+
+# Verify .gitignore includes environment files
+grep -q "\.env" .gitignore || echo "⚠️  WARNING: .env not in .gitignore!"
 ```
 
 ### 4. Test Accounts & Credentials
 
+⚠️ **CREDENTIAL SECURITY**
+- **NEVER store credentials in files that are committed to git**
+- **NEVER hardcode passwords in test scripts**
+- Use environment variables or secure vaults
+- Review `.gitignore` to ensure credential files are excluded
+
 #### Credential Storage
 | Credential Type | Location | Notes |
 |-----------------|----------|-------|
-| Local dev accounts | `.env.local` (git-ignored) | Never commit to repo |
+| Local dev accounts | `.env.local` (git-ignored) | **MUST be in .gitignore** |
 | Staging accounts | Team password manager / secrets vault | Shared test accounts |
-| Production accounts | [SPECIFY LOCATION] | Requires explicit access |
+| Production accounts | Secure vault (1Password, AWS Secrets, etc.) | Requires explicit access, NEVER local |
 
 #### Account Strategy
 **Choose ONE approach and document it:**

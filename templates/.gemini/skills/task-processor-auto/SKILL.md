@@ -197,7 +197,7 @@ gh pr merge [PR-number] --squash --delete-branch \
   --body "Detailed description of changes
 
 Reviewed-by: [reviewer(s)]
-Co-Authored-By: Gemini CLI <noreply@anthropic.com>"
+"
 ```
 
 **Post-merge:**

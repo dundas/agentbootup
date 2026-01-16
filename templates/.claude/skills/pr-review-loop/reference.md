@@ -330,13 +330,21 @@ Moving to next task.
 
 | Event | Threshold | Action |
 |-------|-----------|--------|
-| Review polling | 60 seconds | Check for new reviews |
+| Review polling | 60 seconds | Check for reviews AND comments |
 | Status update | 5 minutes | Log "still waiting..." |
 | Gentle reminder | 30 minutes | Add PR comment |
 | Strong reminder | 2 hours | Second PR comment |
-| Escalate to user | 24 hours | Notify and pause |
+| **Polling timeout** | **8 hours (480 checks)** | **Add timeout comment, escalate to user, exit** |
 | CI polling | 30 seconds | Check for completion |
 | Max review cycles | 10 | Escalate to user |
+
+### Critical: Check Both Reviews and Comments
+
+Reviewers may leave feedback as:
+1. **Formal reviews** (APPROVED/CHANGES_REQUESTED/COMMENTED)
+2. **PR comments** (conversation thread)
+
+**Both must be monitored** as many reviewers use comments without formal review submission.
 
 ---
 

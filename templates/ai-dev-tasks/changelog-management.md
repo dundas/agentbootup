@@ -88,7 +88,7 @@ To guide an AI assistant in creating and updating CHANGELOG.md with entries that
 
     Added by [AI System]
 
-    Co-Authored-By: Claude Code <noreply@anthropic.com>"
+    "
     ```
 
 ---

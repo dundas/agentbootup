@@ -121,12 +121,47 @@ Maintain a comprehensive CHANGELOG.md that tracks all changes with attribution t
 
 10. **Commit Changes**
     ```bash
-    git add CHANGELOG.md
+    # Verify CHANGELOG.md exists and was modified
+    [[ -f CHANGELOG.md ]] || {
+      echo "❌ Error: CHANGELOG.md not found"
+      exit 1
+    }
+
+    # Check if file was actually modified
+    git diff CHANGELOG.md | grep -q . || {
+      echo "⚠️  Warning: CHANGELOG.md not modified. Entry may already exist."
+      echo "Skipping commit."
+      exit 0
+    }
+
+    # Stage the changelog
+    git add CHANGELOG.md || {
+      echo "❌ Error: Failed to stage CHANGELOG.md"
+      exit 1
+    }
+
+    # Commit with error handling
     git commit -m "docs(changelog): add entry for [description]
 
     Added by $AI_SYSTEM
 
-    Co-Authored-By: Gemini CLI <noreply@anthropic.com>"
+    " || {
+      echo "❌ Error: git commit failed"
+      echo "This may be due to:"
+      echo "  - Pre-commit hooks failing"
+      echo "  - No git user configured"
+      echo "  - Repository in bad state"
+      git status
+      exit 1
+    }
+
+    # Verify commit succeeded
+    git log -1 --oneline | grep -q "docs(changelog)" || {
+      echo "❌ Error: Commit verification failed"
+      exit 1
+    }
+
+    echo "✅ CHANGELOG.md updated and committed successfully"
     ```
 
 ---

@@ -40,32 +40,62 @@ Automate the PR review cycle: wait for review → analyze feedback → implement
 
 ### Phase 2: Review Polling Loop
 
-3. **Poll for Reviews (Indefinite)**
+3. **Poll for Reviews and Comments**
+
+   **IMPORTANT:** Feedback can appear in two places:
+   - **Formal Reviews:** Via GitHub's review system (`APPROVED`, `CHANGES_REQUESTED`, `COMMENTED`)
+   - **PR Comments:** Direct comments on the PR conversation thread
+
+   **Both must be checked** as reviewers often leave feedback as comments without formal review submission.
+
    ```bash
-   # Check review state
+   # Check formal review state
    gh api repos/[owner]/[repo]/pulls/[PR-number]/reviews \
-     --jq '[.[] | {state: .state, user: .user.login, body: .body}]'
+     --jq '[.[] | {state: .state, user: .user.login, body: .body, submitted_at}]'
+
+   # Check PR conversation comments (CRITICAL - reviewers often use this)
+   gh pr view [PR-number] --json comments \
+     --jq '.comments[] | {body: .body, author: .author.login, createdAt}'
    ```
 
    **Polling Strategy:**
    - Check every 60 seconds
-   - Continue indefinitely until:
-     - Review with `APPROVED` or `CHANGES_REQUESTED` state appears
-     - Or new review comments are detected since last check
+   - **Maximum duration:** 8 hours (480 checks)
+   - Continue until:
+     - Formal review with `APPROVED` or `CHANGES_REQUESTED` state appears, OR
+     - New PR comments detected since last check (analyze for feedback), OR
+     - Timeout reached
 
    **Status Updates:**
-   - Every 5 minutes, log: "Still waiting for review on PR #[number]..."
-   - If no review after 30 minutes, add PR comment: "Waiting for code review. Please review when available."
+   - Every 5 minutes: Log "Still waiting for review on PR #[number]... (checked N times)"
+   - After 30 minutes: Add PR comment "Waiting for code review. Please review when available."
+   - After 2 hours: Add PR comment "Still awaiting review after 2 hours. Ping @reviewers if urgent."
+   - **After 8 hours:** Add PR comment "Review polling timeout reached (8 hours). Please notify when review is complete." and escalate to user
 
-4. **Fetch Review Comments**
+   **Timeout Escalation:**
    ```bash
-   # Get all review comments
-   gh api repos/[owner]/[repo]/pulls/[PR-number]/comments \
-     --jq '[.[] | {path: .path, line: .line, body: .body, user: .user.login}]'
+   # After 480 checks (8 hours)
+   gh pr comment [PR-number] --body "⏱️ Review polling timeout reached (8 hours).
 
-   # Get PR conversation comments
-   gh pr view [PR-number] --json comments \
-     --jq '.comments[] | {body: .body, author: .author.login}'
+   I've been monitoring this PR for review feedback but haven't received any.
+   Please notify me when review is complete and I'll resume monitoring.
+
+   To resume: Run \`/pr-review-loop [PR-number]\`"
+
+   # Log to user
+   echo "❌ PR #[number] review timeout after 8 hours. Manual intervention needed."
+   # Exit with status code indicating timeout
+   exit 124  # Standard timeout exit code
+   ```
+
+4. **Fetch All Review Feedback**
+   ```bash
+   # Get inline review comments (file-specific)
+   gh api repos/[owner]/[repo]/pulls/[PR-number]/comments \
+     --jq '[.[] | {path: .path, line: .line, body: .body, user: .user.login, created_at}]'
+
+   # Get PR conversation comments (ALREADY fetched in step 3, analyze here)
+   # Parse for review-like feedback even if not formal review
    ```
 
 ### Phase 3: AI Feedback Analysis
@@ -153,8 +183,20 @@ Automate the PR review cycle: wait for review → analyze feedback → implement
 
 8. **Commit and Push Fixes**
    ```bash
+   # Verify git state before operations
+   git status || {
+     echo "❌ Error: git status failed. Repository may be in bad state."
+     exit 1
+   }
+
    # Stage changes
    git add [modified-files]
+
+   # Verify files were staged
+   git diff --cached --name-only | grep -q . || {
+     echo "❌ Error: No files staged. Check if files were modified."
+     exit 1
+   }
 
    # Commit with descriptive message
    git commit -m "fix(review): address PR feedback
@@ -165,10 +207,35 @@ Automate the PR review cycle: wait for review → analyze feedback → implement
    Addresses review comments:
    - [Reviewer]: [Brief quote of feedback addressed]
 
-   Co-Authored-By: Claude Code <noreply@anthropic.com>"
+   Co-Authored-By: Claude Code <noreply@anthropic.com>" || {
+     echo "❌ Error: git commit failed. Check for pre-commit hooks or conflicts."
+     git status
+     exit 1
+   }
+
+   # Verify commit succeeded
+   git log -1 --oneline || {
+     echo "❌ Error: Could not verify last commit."
+     exit 1
+   }
 
    # Push to PR branch
-   git push origin [branch-name]
+   git push origin [branch-name] || {
+     echo "❌ Error: git push failed. Check network connection and permissions."
+     echo "Branch may need rebasing if remote has new commits."
+     git status
+     exit 1
+   }
+
+   # Verify push succeeded
+   git fetch origin
+   LOCAL=$(git rev-parse HEAD)
+   REMOTE=$(git rev-parse origin/[branch-name])
+   if [[ "$LOCAL" != "$REMOTE" ]]; then
+     echo "❌ Warning: Local and remote commits don't match. Push may have failed."
+   else
+     echo "✅ Successfully pushed fixes to PR branch"
+   fi
    ```
 
 9. **Add Detailed PR Comment**
@@ -261,8 +328,7 @@ Automate the PR review cycle: wait for review → analyze feedback → implement
 
     Reviewed-by: [reviewer(s)]
 
-    Co-Authored-By: Claude Code <noreply@anthropic.com>
-    EOF
+        EOF
     )"
     ```
 
