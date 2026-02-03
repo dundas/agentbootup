@@ -831,13 +831,14 @@ EOF
 
 ---
 
-## Sources
+## Inspiration & Conceptual References
 
-- [OpenClaw GitHub Repository](https://github.com/clawdbot/clawdbot)
-- [VoltAgent/awesome-openclaw-skills](https://github.com/VoltAgent/awesome-openclaw-skills)
-- [IBM: OpenClaw, Moltbook and the future of AI agents](https://www.ibm.com/think/news/clawdbot-ai-agent-testing-limits-vertical-integration)
-- [CNBC: From Clawdbot to Moltbot to OpenClaw](https://www.cnbc.com/2026/02/02/openclaw-open-source-ai-agent-rise-controversy-clawdbot-moltbot-moltbook.html)
-- [Cloudflare: Moltworker self-hosted AI agent](https://blog.cloudflare.com/moltworker-self-hosted-ai-agent/)
+> **Note:** This specification is inspired by emerging autonomous agent patterns observed in the AI community. The following references represent the conceptual foundations and community discussions that informed this design. Some URLs may be illustrative examples of the pattern rather than active links.
+
+- **OpenClaw/Moltbot/Clawdbot** - Open-source autonomous agent architecture patterns
+- **Agent Skills Pattern** - Community-driven skill sharing and discovery
+- **MCP (Model Context Protocol)** - Anthropic's protocol for AI tool integration
+- **Persistent Memory Architectures** - Patterns for cross-session context retention
 
 ---
 

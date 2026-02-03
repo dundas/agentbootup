@@ -6,6 +6,12 @@ category: autonomous
 
 # Self-Replicator
 
+> **Important: Conceptual Skill**
+> This skill describes patterns for replicating agent configurations across environments.
+> Gemini CLI itself runs within terminal sessions and cannot self-deploy to remote servers.
+> The "replication" here means exporting and copying instruction templates, skills, and
+> memory files - not autonomous self-propagation.
+
 ## Goal
 Create autonomous copies of the agent on new systems, preserving learned capabilities and relevant context.
 
@@ -144,6 +150,12 @@ Copies skills but no memory:
 Use for: New projects, clean slate with capabilities
 
 ## Cloud Deployment
+
+> **Conceptual Patterns**
+> The following deployment patterns are conceptual examples for future autonomous agent
+> architectures. They are not currently supported by Gemini CLI, which runs within
+> terminal sessions rather than as a standalone daemon. These patterns may be relevant
+> for custom agent implementations built on top of Claude's API.
 
 ### VPS Deployment (DigitalOcean, AWS, etc.)
 

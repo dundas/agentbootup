@@ -2,6 +2,12 @@
 
 Initialize this CLI as an autonomous agent with persistent memory, self-bootstrapping capabilities, and proactive behavior.
 
+> **How This Works**
+> This command provides behavioral instructions for Claude Code to follow during sessions.
+> The "autonomous" capabilities are implemented as instruction templates and memory files
+> that Claude reads and follows - not as runtime code that executes automatically.
+> For true 24/7 automation, integrate with external schedulers that invoke Claude Code.
+
 ## Activation
 
 Run the full autonomous bootup sequence:

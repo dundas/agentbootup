@@ -77,9 +77,16 @@ node bootup.mjs --target . --subset memory,automation,skills
 ### Autonomous Agent Mode
 After installing with `--subset memory,automation,skills`:
 1. Use `/autonomous-bootup` command to activate autonomous mode
-2. Agent will initialize memory system and begin proactive operation
-3. New skills are permanently saved and compound over time
-4. Heartbeat checks run periodically without user prompting
+2. Agent will initialize memory system and follow proactive behavior instructions
+3. New skills are saved as instruction templates that persist across sessions
+4. Heartbeat checks are defined in `HEARTBEAT.md` for Claude to follow
+
+> **Understanding Autonomous Features**
+> The autonomous capabilities (memory, heartbeat, self-bootstrapping) are implemented as
+> **instruction templates** that guide Claude Code's behavior during sessions. They are
+> not runtime code that executes automatically in the background. Claude follows these
+> instructions when reading the templates. For true 24/7 automation, integrate with
+> external schedulers (cron jobs, systemd timers) that periodically invoke Claude Code.
 
 ## Autonomous Agent Architecture
 

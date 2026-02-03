@@ -6,6 +6,11 @@ category: autonomous
 
 # API Integrator
 
+> **Important: Instruction Template**
+> This skill provides instructions for Gemini CLI to follow when integrating APIs.
+> There is no automatic credential encryption - you must implement your own secure
+> storage mechanism. Never store credentials in plaintext in files that will be committed.
+
 ## Goal
 Transform API access credentials into permanent, reusable integration skills.
 

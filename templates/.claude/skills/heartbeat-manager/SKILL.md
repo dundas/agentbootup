@@ -6,6 +6,12 @@ category: autonomous
 
 # Heartbeat Manager
 
+> **Important: Instruction Template**
+> This skill provides a checklist and configuration format for Claude Code to follow.
+> There is no automatic scheduler - heartbeat checks run only when Claude reads and
+> follows this template during a session. For true automation, integrate with external
+> schedulers (cron, systemd timers) that invoke Claude Code periodically.
+
 ## Goal
 Enable proactive agent behavior through scheduled heartbeat checks that run without user prompting.
 
