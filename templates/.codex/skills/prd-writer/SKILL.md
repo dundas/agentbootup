@@ -1,6 +1,7 @@
 ---
 name: prd-writer
 description: Create a clear, actionable PRD with clarifying questions and a junior-friendly structure.
+category: workflow
 ---
 
 # PRD Writer

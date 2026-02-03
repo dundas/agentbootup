@@ -1,6 +1,7 @@
 ---
 name: changelog-manager
 description: Create and update CHANGELOG.md with entries that include AI model/CLI attribution, PRD context, and task references.
+category: quality
 ---
 
 # Changelog Manager

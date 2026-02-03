@@ -1,6 +1,7 @@
 ---
 name: runbook-generator
 description: Generate operational runbooks documenting what needs to be running locally and in production for effective system testing and deployment.
+category: documentation
 ---
 
 # Runbook Generator

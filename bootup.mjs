@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // Portable bootup script to seed Claude Code assets, OpenAI Codex skills,
-// Gemini CLI assets, Windsurf workflows, and AI Dev Tasks into any project.
+// Gemini CLI assets, Windsurf workflows, AI Dev Tasks, and autonomous agent
+// templates (memory, automation) into any project.
 // Usage:
 //   node bootstrap/bootup.mjs [--target <dir>] [--subset <csv>] [--force] [--dry-run] [--verbose]
-//   subsets: agents,skills,commands,workflows,docs,scripts,gemini,codex (default: all)
+//   subsets: agents,skills,commands,workflows,docs,scripts,gemini,codex,memory,automation (default: all)
 
 import fs from 'fs';
 import path from 'path';
@@ -15,7 +16,7 @@ const __dirname = path.dirname(__filename);
 const templatesRoot = path.join(__dirname, 'templates');
 
 function parseArgs(argv) {
-  const args = { target: process.cwd(), subset: ['agents','skills','commands','workflows','docs','scripts','gemini','codex'], force: false, dryRun: false, verbose: false };
+  const args = { target: process.cwd(), subset: ['agents','skills','commands','workflows','docs','scripts','gemini','codex','memory','automation'], force: false, dryRun: false, verbose: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--target' && argv[i+1]) { args.target = path.resolve(argv[++i]); }
@@ -31,13 +32,18 @@ function parseArgs(argv) {
 }
 
 function printHelpAndExit(code = 0) {
-  console.log(`\nBootup - Seed Claude Code + Windsurf + Gemini + Codex into any project\n\n` +
+  console.log(`\nBootup - Seed Claude Code + Windsurf + Gemini + Codex + Autonomous Agent templates into any project\n\n` +
 `Options:\n` +
 `  --target <dir>     Target project directory (default: CWD)\n` +
-`  --subset <csv>     Which templates to install: agents,skills,commands,workflows,docs,scripts,gemini,codex (default: all)\n` +
+`  --subset <csv>     Which templates to install:\n` +
+`                     agents,skills,commands,workflows,docs,scripts,gemini,codex,memory,automation\n` +
+`                     (default: all)\n` +
 `  --force            Overwrite existing files\n` +
 `  --dry-run          Preview actions without writing\n` +
-`  --verbose          Print each file action\n`);
+`  --verbose          Print each file action\n\n` +
+`Autonomous Agent Mode:\n` +
+`  --subset memory,automation    Install only memory and heartbeat templates\n` +
+`  --subset skills,memory        Install skills with persistent memory\n`);
   process.exit(code);
 }
 
@@ -55,6 +61,9 @@ function relToCategory(relPath) {
   if (relPath.startsWith('ai-dev-tasks/')) return 'docs';
   if (relPath.startsWith('tasks/')) return 'docs';
   if (relPath.startsWith('scripts/')) return 'scripts';
+  if (relPath.startsWith('memory/')) return 'memory';
+  if (relPath.startsWith('automation/')) return 'automation';
+  if (relPath.startsWith('docs/')) return 'docs';
   return 'other';
 }
 
@@ -113,6 +122,20 @@ function run() {
     if (!fs.existsSync(gitkeep) && !args.dryRun) fs.writeFileSync(gitkeep, '');
   }
 
+  // Ensure memory/daily/ exists for autonomous mode
+  if (args.subset.includes('memory')) {
+    const dailyDir = path.join(args.target, 'memory', 'daily');
+    ensureDir(dailyDir);
+
+    // Create today's daily note if it doesn't exist
+    const today = new Date().toISOString().split('T')[0];
+    const dailyNote = path.join(dailyDir, `${today}.md`);
+    if (!fs.existsSync(dailyNote) && !args.dryRun) {
+      const template = `# ${today}\n\n## Sessions\n\n*No sessions recorded yet*\n`;
+      fs.writeFileSync(dailyNote, template);
+    }
+  }
+
   // Summary
   const summary = actions.reduce((acc, a) => { acc[a.type] = (acc[a.type]||0)+1; return acc; }, {});
   console.log('\nBootup summary:');
@@ -125,6 +148,14 @@ function run() {
   console.log('  - In Windsurf, use /dev-pipeline or individual workflows');
   console.log('  - In Gemini CLI, skills will be auto-discovered; use /skills list to verify');
   console.log('  - In Codex CLI/IDE, run /skills (or type $) to invoke skills');
+
+  if (args.subset.includes('memory') || args.subset.includes('automation')) {
+    console.log('\n🤖 Autonomous Agent Mode:');
+    console.log('  - Memory system initialized in memory/');
+    console.log('  - Heartbeat configuration in automation/HEARTBEAT.md');
+    console.log('  - Use /autonomous-bootup command to activate autonomous mode');
+    console.log('  - New skills: skill-creator, memory-manager, heartbeat-manager, api-integrator, self-replicator');
+  }
 }
 
 try {

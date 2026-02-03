@@ -1,3 +1,9 @@
+---
+name: design-system-from-reference
+description: Extract visual style from reference UI screenshot and codify into reusable design system.
+category: design
+---
+
 # Skill: design-system-from-reference
 
 ## What this skill does

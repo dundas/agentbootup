@@ -1,6 +1,7 @@
 ---
 name: tasklist-generator
 description: Generate high-level tasks and gated sub-tasks from a PRD, with agent assignments, commit/PR strategy, and relevant files.
+category: workflow
 ---
 
 # Task List Generator

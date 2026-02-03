@@ -1,6 +1,7 @@
 ---
 name: task-processor-auto
 description: Process tasks autonomously with automated PR reviews and gap analysis after each PR creation/commit.
+category: workflow
 ---
 
 # Autonomous Task Processor with PR Review

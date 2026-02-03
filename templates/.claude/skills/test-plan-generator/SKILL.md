@@ -1,6 +1,7 @@
 ---
 name: test-plan-generator
 description: Generate comprehensive E2E test plans from PRDs, task lists, or descriptions with environment-aware prerequisites and issue tracking.
+category: quality
 ---
 
 # Test Plan Generator
