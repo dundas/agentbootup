@@ -1,6 +1,7 @@
 ---
 name: task-processor-parallel
 description: Process tasks using async background subagents for massive parallelization and speedup.
+category: workflow
 ---
 
 # Parallel Task Processor with Async Subagents

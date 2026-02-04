@@ -1,6 +1,7 @@
 ---
 name: pr-review-loop
 description: Monitor PR for code review, analyze feedback with AI, implement fixes, and merge when approved with CI green.
+category: quality
 ---
 
 # PR Review Loop

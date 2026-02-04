@@ -1,6 +1,7 @@
 ---
 name: production-readiness
 description: Generate comprehensive pre-launch checklist of user stories, acceptance criteria, and smoke tests to validate before going live in production.
+category: quality
 ---
 
 # Production Readiness Generator

@@ -1,6 +1,7 @@
 ---
 name: dialectical-autocoder
 description: Orchestrate adversarial player-coach loop for high-quality code synthesis. Based on dialectical autocoding methodology.
+category: quality
 config:
   max_turns: 5
   escalate_on_timeout: true

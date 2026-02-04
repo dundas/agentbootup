@@ -1,6 +1,7 @@
 ---
 name: user-story-generator
 description: Generate standalone user stories for features without creating a full PRD. Perfect for backlog grooming and story refinement.
+category: documentation
 ---
 
 # User Story Generator

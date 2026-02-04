@@ -1,6 +1,7 @@
 ---
 name: user-journey-mapper
 description: Map user flows and journeys through your application for UX design and workflow visualization, independent of testing.
+category: documentation
 ---
 
 # User Journey Mapper

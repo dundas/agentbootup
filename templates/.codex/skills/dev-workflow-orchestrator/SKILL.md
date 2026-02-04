@@ -1,6 +1,7 @@
 ---
 name: dev-workflow-orchestrator
 description: Orchestrate PRD creation, task generation, and gated task processing with user confirmations between phases.
+category: workflow
 ---
 
 # Development Workflow Orchestrator

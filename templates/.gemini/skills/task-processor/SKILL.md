@@ -1,6 +1,7 @@
 ---
 name: task-processor
 description: Process a task list one sub-task at a time with pause/confirm gates, test/commit protocol, and file tracking.
+category: workflow
 ---
 
 # Task Processor

@@ -1,6 +1,7 @@
 ---
 name: design-system-implementation
 description: Build or update frontend components and pages that strictly adhere to the project design system defined in design/design-system.json (and design/design.json when present).
+category: design
 license: Complete terms in LICENSE.txt
 ---
 
