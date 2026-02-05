@@ -12,6 +12,9 @@ test-results/
 .memory-sync.config.json
 .ai-memory.json
 
+# Transcript analyzer state
+.transcript-analyzer-state.json
+
 # Log files
 *.log
 
