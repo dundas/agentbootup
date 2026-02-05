@@ -16,7 +16,7 @@ const __dirname = path.dirname(__filename);
 const templatesRoot = path.join(__dirname, 'templates');
 
 function parseArgs(argv) {
-  const args = { target: process.cwd(), subset: ['agents','skills','commands','workflows','docs','scripts','gemini','codex','memory','automation'], force: false, dryRun: false, verbose: false };
+  const args = { target: process.cwd(), subset: ['agents','skills','commands','workflows','docs','scripts','gemini','codex','memory','automation','hooks'], force: false, dryRun: false, verbose: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--target' && argv[i+1]) { args.target = path.resolve(argv[++i]); }
@@ -36,7 +36,7 @@ function printHelpAndExit(code = 0) {
 `Options:\n` +
 `  --target <dir>     Target project directory (default: CWD)\n` +
 `  --subset <csv>     Which templates to install:\n` +
-`                     agents,skills,commands,workflows,docs,scripts,gemini,codex,memory,automation\n` +
+`                     agents,skills,commands,workflows,docs,scripts,gemini,codex,memory,automation,hooks\n` +
 `                     (default: all)\n` +
 `  --force            Overwrite existing files\n` +
 `  --dry-run          Preview actions without writing\n` +
@@ -55,15 +55,19 @@ function relToCategory(relPath) {
   if (relPath.startsWith('.claude/agents/')) return 'agents';
   if (relPath.startsWith('.claude/skills/')) return 'skills';
   if (relPath.startsWith('.claude/commands/')) return 'commands';
+  if (relPath.startsWith('.claude/hooks/')) return 'hooks';
+  if (relPath.startsWith('.claude/fragments/')) return 'fragments';
   if (relPath.startsWith('.gemini/')) return 'gemini';
+  if (relPath.startsWith('.gemini/fragments/')) return 'fragments';
   if (relPath.startsWith('.codex/')) return 'codex';
   if (relPath.startsWith('.windsurf/workflows/')) return 'workflows';
   if (relPath.startsWith('ai-dev-tasks/')) return 'docs';
   if (relPath.startsWith('tasks/')) return 'docs';
+  if (relPath.startsWith('docs/')) return 'docs';
   if (relPath.startsWith('scripts/')) return 'scripts';
   if (relPath.startsWith('memory/')) return 'memory';
+  if (relPath.startsWith('.ai/')) return 'memory';
   if (relPath.startsWith('automation/')) return 'automation';
-  if (relPath.startsWith('docs/')) return 'docs';
   return 'other';
 }
 
@@ -90,11 +94,22 @@ function run() {
 
   const allFiles = listTemplateFiles(templatesRoot);
   const actions = [];
+  const fragmentsToAppend = [];
 
   for (const src of allFiles) {
     const rel = path.relative(templatesRoot, src).replaceAll('\\', '/');
     const category = relToCategory(rel);
-    if (!args.subset.includes(category)) continue;
+
+    // Skip fragments if memory category not selected
+    if (category === 'fragments' && !args.subset.includes('memory')) continue;
+    // Skip other categories if not selected
+    if (!args.subset.includes(category) && category !== 'fragments') continue;
+
+    // Handle fragments specially - they get appended to CLAUDE.md or GEMINI.md
+    if (category === 'fragments') {
+      fragmentsToAppend.push({ src, rel });
+      continue;
+    }
 
     const dest = path.join(args.target, rel);
     const destDir = path.dirname(dest);
@@ -112,6 +127,47 @@ function run() {
     }
     actions.push({ type: args.dryRun ? 'wouldWrite' : (exists ? 'overwritten' : 'written'), rel });
     if (args.verbose) console.log(args.dryRun ? '● would write:' : '✓ wrote:', rel);
+  }
+
+  // Handle fragments - append to CLAUDE.md or GEMINI.md
+  if (args.subset.includes('memory') && fragmentsToAppend.length > 0) {
+    for (const { src, rel } of fragmentsToAppend) {
+      const fragmentContent = fs.readFileSync(src, 'utf-8');
+      let targetFile;
+
+      if (rel.includes('.claude/')) {
+        targetFile = path.join(args.target, 'CLAUDE.md');
+      } else if (rel.includes('.gemini/')) {
+        targetFile = path.join(args.target, 'GEMINI.md');
+      }
+
+      if (targetFile) {
+        const exists = fs.existsSync(targetFile);
+
+        if (!args.dryRun) {
+          if (exists) {
+            // Check if fragment already appended
+            const current = fs.readFileSync(targetFile, 'utf-8');
+            if (!current.includes('## Autonomous Memory System')) {
+              fs.appendFileSync(targetFile, '\n\n' + fragmentContent);
+              actions.push({ type: 'appended', rel: `${path.basename(targetFile)} ← ${rel}` });
+              if (args.verbose) console.log('✓ appended:', rel, '→', targetFile);
+            } else {
+              actions.push({ type: 'skip', rel: `${path.basename(targetFile)} ← ${rel}`, reason: 'already present' });
+              if (args.verbose) console.log('↷ skip (already present):', rel);
+            }
+          } else {
+            // Create new file with fragment
+            fs.writeFileSync(targetFile, `# ${path.basename(args.target)}\n\n${fragmentContent}`);
+            actions.push({ type: 'created', rel: targetFile });
+            if (args.verbose) console.log('✓ created:', targetFile);
+          }
+        } else {
+          actions.push({ type: 'wouldAppend', rel: `${path.basename(targetFile)} ← ${rel}` });
+          if (args.verbose) console.log('● would append:', rel, '→', targetFile);
+        }
+      }
+    }
   }
 
   // Ensure tasks/ exists

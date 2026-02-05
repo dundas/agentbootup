@@ -1,2 +1,33 @@
+# Node modules
+node_modules/
+
+# Test artifacts
+.test-daemon/
+test-results/
+
+# Daemon runtime files
+.uhr/
+
+# Config files with credentials
+.memory-sync.config.json
+.ai-memory.json
+
+# Log files
+*.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+
 # Ignore local research artifacts
 research/
