@@ -224,11 +224,12 @@ async function runValidate(args) {
 async function runDaemon(args) {
   const daemonManager = new DaemonManager();
   const subcommand = args._[1];
+  const basePath = args['base-path'] || process.cwd();
 
   switch (subcommand) {
     case 'start': {
       try {
-        const result = await daemonManager.start();
+        const result = await daemonManager.start(basePath);
         console.log('✓ Daemon started successfully');
         console.log(`  PID: ${result.pid}`);
         console.log(`  Log file: ${result.logFile}`);
