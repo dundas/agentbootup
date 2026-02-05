@@ -75,17 +75,29 @@ class DaemonTester {
       '# Test Memory\n\nThis is a test memory file.\n'
     );
 
-    // Create test config
+    // Create test config (must match config-manager expected structure)
     const config = {
-      projectId: 'test-daemon',
-      provider: 'local', // Use local provider for testing
-      files: [
-        'memory/**/*.md'
-      ]
+      version: '1.0.0',
+      memory: {
+        path: 'memory/',
+        maxMemoryLines: 200,
+        dailyLogPath: 'memory/daily/'
+      },
+      sync: {
+        enabled: true,
+        provider: 'local', // Use local provider for testing
+        config: {},
+        files: [
+          'memory/**/*.md'
+        ]
+      },
+      skills: {
+        path: '.ai/skills/'
+      }
     };
 
     await fs.writeFile(
-      path.join(TEST_DIR, '.memory-sync.config.json'),
+      path.join(TEST_DIR, '.ai-memory.json'),
       JSON.stringify(config, null, 2)
     );
 
