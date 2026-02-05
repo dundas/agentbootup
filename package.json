@@ -1,13 +1,18 @@
 {
   "name": "agentbootup",
-  "version": "0.6.0",
-  "description": "Seed Claude Code, OpenAI Codex, Gemini CLI, and Windsurf development assets (agents, skills, commands, workflows) into any project.",
+  "version": "0.7.0",
+  "description": "Seed Claude Code, OpenAI Codex, Gemini CLI, and Windsurf development assets (agents, skills, commands, workflows) into any project. Includes memory sync daemon and autonomous transcript analysis.",
   "type": "module",
   "bin": {
-    "agentbootup": "bootup.mjs"
+    "agentbootup": "bootup.mjs",
+    "memory-sync": "memory-sync.mjs",
+    "memory-sync-daemon": "memory-sync-daemon.mjs"
   },
   "files": [
     "bootup.mjs",
+    "memory-sync.mjs",
+    "memory-sync-daemon.mjs",
+    "lib/**",
     "templates/**",
     "README.md",
     "LICENSE"
