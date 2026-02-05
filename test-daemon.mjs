@@ -20,6 +20,7 @@ const execAsync = promisify(exec);
 
 const TEST_DIR = path.join(process.cwd(), '.test-daemon');
 const TEST_TIMEOUT = 60000; // 60 seconds
+const CLI_PATH = path.join(process.cwd(), 'memory-sync.mjs');
 
 class DaemonTester {
   constructor() {
@@ -120,7 +121,7 @@ class DaemonTester {
    */
   async startDaemon() {
     const { stdout, stderr } = await execAsync(
-      `node memory-sync.mjs daemon start`,
+      `node "${CLI_PATH}" daemon start`,
       {
         cwd: TEST_DIR,
         timeout: 10000
@@ -139,7 +140,7 @@ class DaemonTester {
    */
   async stopDaemon() {
     const { stdout, stderr } = await execAsync(
-      `node memory-sync.mjs daemon stop`,
+      `node "${CLI_PATH}" daemon stop`,
       {
         cwd: TEST_DIR,
         timeout: 10000

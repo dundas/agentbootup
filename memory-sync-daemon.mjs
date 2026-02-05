@@ -55,7 +55,9 @@ async function main() {
 
   // Create HTTP server
   const httpServer = new DaemonHttpServer(daemon, {
-    port: args.port
+    port: args.port,
+    apiToken: process.env.DAEMON_API_TOKEN,
+    requireAuth: true
   });
 
   // Graceful shutdown
