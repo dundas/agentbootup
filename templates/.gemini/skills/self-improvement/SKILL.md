@@ -35,7 +35,7 @@ analyze-transcripts --dry-run --verbose
 ```
 
 **What happens:**
-1. Finds Claude Code session transcripts for this project
+1. Finds Gemini CLI session transcripts for this project
 2. Filters to recent/unprocessed sessions
 3. Parses each transcript (messages, files modified, errors)
 4. Sends session context to LLM for insight extraction
@@ -168,7 +168,7 @@ Review your brain's `memory/MEMORY.md` and identify universally valuable learnin
 Add curated knowledge to agentbootup templates:
 - `templates/memory/MEMORY.md` - Default memory template
 - `templates/.ai/protocols/SELF_IMPROVEMENT.md` - This protocol
-- `templates/.claude/skills/self-improvement/` - This skill
+- `templates/.gemini/skills/self-improvement/` - This skill
 
 ### Step 3: Publish
 
