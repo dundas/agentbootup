@@ -222,7 +222,12 @@ async function runValidate(args) {
 }
 
 async function runDaemon(args) {
-  const daemonManager = new DaemonManager();
+  const daemonManagerOptions = {};
+  if (args['daemon-dir']) {
+    daemonManagerOptions.daemonDir = args['daemon-dir'];
+  }
+
+  const daemonManager = new DaemonManager(daemonManagerOptions);
   const subcommand = args._[1];
   const basePath = args['base-path'] || process.cwd();
 

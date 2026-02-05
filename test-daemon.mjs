@@ -132,8 +132,12 @@ class DaemonTester {
    * Start daemon
    */
   async startDaemon() {
+    // Use custom daemon directory for testing to avoid conflicts with running daemon
+    const testDaemonDir = path.join(TEST_DIR, '.uhr-daemon');
+    await fs.mkdir(testDaemonDir, { recursive: true });
+
     const { stdout, stderr } = await execAsync(
-      `node "${CLI_PATH}" daemon start`,
+      `node "${CLI_PATH}" daemon start --daemon-dir="${testDaemonDir}"`,
       {
         cwd: TEST_DIR,
         timeout: 10000
@@ -151,8 +155,10 @@ class DaemonTester {
    * Stop daemon
    */
   async stopDaemon() {
+    const testDaemonDir = path.join(TEST_DIR, '.uhr-daemon');
+
     const { stdout, stderr } = await execAsync(
-      `node "${CLI_PATH}" daemon stop`,
+      `node "${CLI_PATH}" daemon stop --daemon-dir="${testDaemonDir}"`,
       {
         cwd: TEST_DIR,
         timeout: 10000
