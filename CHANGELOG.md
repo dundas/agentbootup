@@ -17,6 +17,14 @@ with enhanced attribution to track which AI model/CLI made each change.
 
 ### Fixed
 
+- **Transcript Analysis Reliability** (Claude Sonnet 4.5, 2026-02-05)
+  - Validate `--hours` CLI argument (reject NaN/negative values that caused silent zero-session analysis)
+  - Handle fs.stat race conditions in analyze-transcripts and transcript-parser (file deletion between list and stat)
+  - Track and report error counts in analysis summary (no more silent failures)
+  - Path traversal guard in `listTranscripts()` prevents directory escape attacks
+  - Added `.transcript-analyzer-state.json` to `.gitignore`
+  - **Context:** PR #19
+
 - **MemoryWriter.updateMemoryMd()** (Claude Sonnet 4.5, 2026-02-05)
   - Now actually writes to MEMORY.md (was previously a TODO stub)
   - Deduplication via normalized substring matching and 70% word overlap
