@@ -39,7 +39,12 @@ for (let i = 0; i < args.length; i++) {
   if (args[i] === '--project' && args[i + 1]) {
     flags.project = args[++i];
   } else if (args[i] === '--hours' && args[i + 1]) {
-    flags.hours = parseInt(args[++i], 10);
+    const hoursVal = parseInt(args[++i], 10);
+    if (isNaN(hoursVal) || hoursVal <= 0) {
+      console.error('Error: --hours must be a positive number.');
+      process.exit(1);
+    }
+    flags.hours = hoursVal;
   } else if (args[i] === '--session' && args[i + 1]) {
     flags.session = args[++i];
   } else if (args[i] === '--all') {
@@ -191,12 +196,17 @@ async function main() {
     const hours = flags.hours || 24;
     const cutoff = Date.now() - (hours * 60 * 60 * 1000);
 
-    const withStats = await Promise.all(
+    const withStats = (await Promise.all(
       transcripts.map(async (t) => {
-        const stats = await fs.stat(t.path);
-        return { ...t, mtime: stats.mtime };
+        try {
+          const stats = await fs.stat(t.path);
+          return { ...t, mtime: stats.mtime };
+        } catch {
+          // File deleted between listing and stating - skip silently
+          return null;
+        }
       })
-    );
+    )).filter(t => t !== null);
 
     toAnalyze = withStats
       .filter(t => t.mtime.getTime() > cutoff)
@@ -218,6 +228,7 @@ async function main() {
   let analyzed = 0;
   let insightsTotal = 0;
   let memoryUpdates = 0;
+  let errorCount = 0;
 
   for (const transcript of toAnalyze) {
     const { sessionId, path: transcriptPath } = transcript;
@@ -285,7 +296,10 @@ async function main() {
         console.log('');
       }
     } catch (err) {
+      errorCount++;
       console.log(` ERROR: ${err.message}`);
+      if (err.code) console.log(`  Error code: ${err.code}`);
+      if (!flags.verbose) console.log(`  Use --verbose for full stack trace`);
       if (flags.verbose) {
         console.error(err);
       }
@@ -313,6 +327,9 @@ async function main() {
   console.log(`Sessions analyzed: ${analyzed}`);
   console.log(`Insights extracted: ${insightsTotal}`);
   console.log(`MEMORY.md updates: ${memoryUpdates}`);
+  if (errorCount > 0) {
+    console.log(`Errors: ${errorCount} session(s) failed`);
+  }
 
   if (!flags.dryRun && analyzed > 0) {
     console.log(`\nResults written to:`);
