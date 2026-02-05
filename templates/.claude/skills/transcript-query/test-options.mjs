@@ -4,13 +4,23 @@
  */
 
 import { TranscriptParser } from './lib/transcript-parser.js';
-import fs from 'fs/promises';
 
 const parser = new TranscriptParser();
 
-const transcriptPath = '/Users/kefentse/.claude/projects/-Users-kefentse-dev-env-decisive-redux/c5fc2201-871d-4a4b-9798-169f52d38ec5.jsonl';
+// Use environment variable or auto-detect transcript
+const projectPath = process.env.TEST_PROJECT_PATH || process.cwd();
+const transcripts = await parser.listTranscripts(projectPath);
 
-console.log('Testing search options and caching...\n');
+if (transcripts.length === 0) {
+  console.log('No transcripts found. Skipping options tests.');
+  console.log('Set TEST_PROJECT_PATH to a project with transcripts.');
+  process.exit(0);
+}
+
+const transcriptPath = transcripts[0].path;
+
+console.log('Testing search options and caching...');
+console.log(`Transcript: ${transcriptPath}\n`);
 
 // Test 1: Cache performance
 console.log('Test 1: Cache Performance');
@@ -25,14 +35,18 @@ const start2 = Date.now();
 const data2 = await parser.parseTranscript(transcriptPath);
 const time2 = Date.now() - start2;
 console.log(`  Parsed ${data2.messages.length} messages in ${time2}ms`);
-console.log(`  Speedup: ${(time1 / time2).toFixed(1)}x faster\n`);
+const speedup = time2 === 0 ? 'Infinity' : (time1 / time2).toFixed(1);
+console.log(`  Speedup: ${speedup}x faster\n`);
 
 // Test 2: Search with default (simulating recent 10)
-console.log('Test 2: Simulated Recent 10 Sessions Search');
+console.log('Test 2: Search Results');
 const searchResults = parser.searchMessages(data1, 'daemon');
-console.log(`  Found ${searchResults.length} matches`);
-console.log(`  Best match score: ${searchResults[0].score.toFixed(2)}`);
-console.log(`  Match types: ${searchResults[0].matches.map(m => m.type).join(', ')}\n`);
+console.log(`  Found ${searchResults.length} matches for "daemon"`);
+if (searchResults.length > 0) {
+  console.log(`  Best match score: ${searchResults[0].score.toFixed(2)}`);
+  console.log(`  Match types: ${searchResults[0].matches.map(m => m.type).join(', ')}`);
+}
+console.log();
 
 // Test 3: Fuzzy search still works
 console.log('Test 3: Fuzzy Search with Cache');

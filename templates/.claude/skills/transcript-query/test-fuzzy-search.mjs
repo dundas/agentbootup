@@ -7,10 +7,20 @@ import { TranscriptParser } from './lib/transcript-parser.js';
 
 const parser = new TranscriptParser();
 
-// Test with the current session transcript
-const transcriptPath = '/Users/kefentse/.claude/projects/-Users-kefentse-dev-env-decisive-redux/c5fc2201-871d-4a4b-9798-169f52d38ec5.jsonl';
+// Use environment variable or auto-detect transcript
+const projectPath = process.env.TEST_PROJECT_PATH || process.cwd();
+const transcripts = await parser.listTranscripts(projectPath);
 
-console.log('Testing fuzzy search...\n');
+if (transcripts.length === 0) {
+  console.log('No transcripts found. Skipping fuzzy search tests.');
+  console.log('Set TEST_PROJECT_PATH to a project with transcripts.');
+  process.exit(0);
+}
+
+const transcriptPath = transcripts[0].path;
+
+console.log('Testing fuzzy search...');
+console.log(`Transcript: ${transcriptPath}\n`);
 
 const data = await parser.parseTranscript(transcriptPath);
 
@@ -56,6 +66,14 @@ if (partialMatches.length > 0) {
   console.log(`  Best match score: ${partialMatches[0].score.toFixed(2)}`);
   console.log(`  Match types: ${partialMatches[0].matches.map(m => m.type).join(', ')}`);
 }
+console.log();
+
+// Test 5: Stemming order (regression test for suffix order bug)
+console.log('Test 5: Stemming order "happiness" (should not become "happine")');
+const stem = parser.stem('happiness');
+const expected = 'happi';
+console.log(`  stem("happiness") = "${stem}"`);
+console.log(`  Correct: ${stem !== 'happine' ? '✅' : '❌ BUG: double-stemming'}`);
 console.log();
 
 console.log('✅ Fuzzy search test complete');

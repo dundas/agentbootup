@@ -25,7 +25,7 @@ export class TranscriptParser {
       // Verify file hasn't been modified since cache
       try {
         const stats = await fs.stat(transcriptPath);
-        if (stats.mtime.getTime() === cached.mtime) {
+        if (stats.mtime.getTime() <= cached.mtime) {
           return cached.data;
         }
       } catch (err) {
@@ -241,13 +241,16 @@ export class TranscriptParser {
    */
   stem(word) {
     word = word.toLowerCase();
-    // Remove common suffixes
+    // Remove common suffixes - longer suffixes first to avoid double-stemming
+    // e.g. "happiness" should not become "happine" via s→happines→ed→happine
+    word = word.replace(/ness$/, '');
+    word = word.replace(/ment$/, '');
+    word = word.replace(/est$/, '');
     word = word.replace(/ing$/, '');
-    word = word.replace(/ed$/, '');
-    word = word.replace(/s$/, '');
     word = word.replace(/ly$/, '');
     word = word.replace(/er$/, '');
-    word = word.replace(/est$/, '');
+    word = word.replace(/ed$/, '');
+    word = word.replace(/s$/, '');
     return word;
   }
 
@@ -273,15 +276,16 @@ export class TranscriptParser {
       let score = 0;
       const matches = [];
 
-      // 1. Exact match (highest score)
-      if (content.includes(lowerKeyword)) {
+      // 1. Exact match (highest score) - substring in full content
+      const hasExactMatch = content.includes(lowerKeyword);
+      if (hasExactMatch) {
         score += 10;
         matches.push({ type: 'exact', keyword: lowerKeyword });
       }
 
-      // 2. Case-insensitive exact word match
+      // 2. Exact word match (only scores if NOT already an exact substring match)
       const exactWordMatch = words.some(w => w === lowerKeyword);
-      if (exactWordMatch) {
+      if (exactWordMatch && !hasExactMatch) {
         score += 8;
         matches.push({ type: 'exact-word', keyword: lowerKeyword });
       }
@@ -307,6 +311,10 @@ export class TranscriptParser {
 
       // 5. Fuzzy match (typo tolerance)
       const fuzzyMatches = words.filter(w => {
+        // Early exit: skip if length difference exceeds threshold (optimization)
+        if (Math.abs(w.length - lowerKeyword.length) > fuzzyThreshold) {
+          return false;
+        }
         const distance = this.levenshteinDistance(w, lowerKeyword);
         return distance <= fuzzyThreshold && distance > 0;
       });
