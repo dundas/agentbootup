@@ -178,9 +178,133 @@ export class TranscriptParser {
   }
 
   /**
-   * Search messages by keyword
+   * Calculate Levenshtein distance between two strings
    */
-  searchMessages(data, keyword) {
+  levenshteinDistance(str1, str2) {
+    const m = str1.length;
+    const n = str2.length;
+    const dp = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+
+    for (let i = 0; i <= m; i++) dp[i][0] = i;
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+    for (let i = 1; i <= m; i++) {
+      for (let j = 1; j <= n; j++) {
+        if (str1[i - 1] === str2[j - 1]) {
+          dp[i][j] = dp[i - 1][j - 1];
+        } else {
+          dp[i][j] = Math.min(
+            dp[i - 1][j - 1] + 1, // substitute
+            dp[i - 1][j] + 1,     // delete
+            dp[i][j - 1] + 1      // insert
+          );
+        }
+      }
+    }
+
+    return dp[m][n];
+  }
+
+  /**
+   * Simple stemmer - removes common suffixes
+   */
+  stem(word) {
+    word = word.toLowerCase();
+    // Remove common suffixes
+    word = word.replace(/ing$/, '');
+    word = word.replace(/ed$/, '');
+    word = word.replace(/s$/, '');
+    word = word.replace(/ly$/, '');
+    word = word.replace(/er$/, '');
+    word = word.replace(/est$/, '');
+    return word;
+  }
+
+  /**
+   * Search messages by keyword with fuzzy matching, stemming, and partial matches
+   * Returns results sorted by relevance score
+   */
+  searchMessages(data, keyword, options = {}) {
+    const {
+      fuzzyThreshold = 2, // Max Levenshtein distance for fuzzy match
+      includePartial = true,
+      includeStemmed = true,
+      minScore = 0.3
+    } = options;
+
+    const lowerKeyword = keyword.toLowerCase();
+    const stemmedKeyword = this.stem(keyword);
+
+    const results = data.messages.map(m => {
+      const content = m.content.toLowerCase();
+      const words = content.split(/\s+/);
+
+      let score = 0;
+      const matches = [];
+
+      // 1. Exact match (highest score)
+      if (content.includes(lowerKeyword)) {
+        score += 10;
+        matches.push({ type: 'exact', keyword: lowerKeyword });
+      }
+
+      // 2. Case-insensitive exact word match
+      const exactWordMatch = words.some(w => w === lowerKeyword);
+      if (exactWordMatch) {
+        score += 8;
+        matches.push({ type: 'exact-word', keyword: lowerKeyword });
+      }
+
+      // 3. Partial match (substring)
+      if (includePartial) {
+        const partialMatches = words.filter(w => w.includes(lowerKeyword));
+        if (partialMatches.length > 0) {
+          score += 5 * Math.min(partialMatches.length, 3); // Cap at 3 matches
+          matches.push({ type: 'partial', count: partialMatches.length });
+        }
+      }
+
+      // 4. Stemmed match
+      if (includeStemmed) {
+        const stemmedWords = words.map(w => this.stem(w));
+        const stemMatches = stemmedWords.filter(sw => sw === stemmedKeyword || sw.includes(stemmedKeyword));
+        if (stemMatches.length > 0) {
+          score += 4 * Math.min(stemMatches.length, 3);
+          matches.push({ type: 'stemmed', count: stemMatches.length });
+        }
+      }
+
+      // 5. Fuzzy match (typo tolerance)
+      const fuzzyMatches = words.filter(w => {
+        const distance = this.levenshteinDistance(w, lowerKeyword);
+        return distance <= fuzzyThreshold && distance > 0;
+      });
+      if (fuzzyMatches.length > 0) {
+        score += 3 * Math.min(fuzzyMatches.length, 3);
+        matches.push({ type: 'fuzzy', words: fuzzyMatches, threshold: fuzzyThreshold });
+      }
+
+      // Normalize score by content length (favor shorter, more relevant messages)
+      const normalizedScore = score / Math.log10(content.length + 10);
+
+      return {
+        ...m,
+        score: normalizedScore,
+        rawScore: score,
+        matches
+      };
+    }).filter(m => m.score >= minScore);
+
+    // Sort by score descending
+    results.sort((a, b) => b.score - a.score);
+
+    return results;
+  }
+
+  /**
+   * Legacy search method for backward compatibility
+   */
+  searchMessagesSimple(data, keyword) {
     const lowerKeyword = keyword.toLowerCase();
     return data.messages.filter(m =>
       m.content.toLowerCase().includes(lowerKeyword)

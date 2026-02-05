@@ -57,6 +57,21 @@ const data = await parser.parseTranscript(recent.path);
 
 console.log(`Last session: ${data.summary.durationFormatted}`);
 console.log(`Files modified: ${data.summary.filesModifiedCount}`);
+
+// Search with fuzzy matching and options
+const matches = parser.searchMessages(data, 'infinitrade', {
+  fuzzyThreshold: 2,      // Max edit distance for typos
+  includePartial: true,   // Include substring matches
+  includeStemmed: true,   // Include stemmed variations
+  minScore: 0.3          // Minimum relevance score
+});
+
+// Results include score and match details
+matches.forEach(m => {
+  console.log(`Score: ${m.score.toFixed(2)}`);
+  console.log(`Match types: ${m.matches.map(mt => mt.type).join(', ')}`);
+  console.log(`Content: ${m.content.substring(0, 100)}...`);
+});
 ```
 
 ## Integration with Claude
@@ -118,11 +133,20 @@ See exactly what happened in a session:
 node transcript-query.mjs summary c5fc2201-871d-4a4b-9798-169f52d38ec5
 ```
 
-### 2. Keyword Search
-Find all mentions of a topic:
+### 2. Keyword Search (with Fuzzy Matching)
+Find all mentions of a topic with intelligent matching:
 ```bash
 node transcript-query.mjs search "authentication"
+node transcript-query.mjs search "inifitrade"  # Finds "infinitrade" via fuzzy match
+node transcript-query.mjs search "trade"       # Finds "trading", "infinitrade" via stemming
 ```
+
+**Search features:**
+- **Exact match**: Highest priority, exact keyword match
+- **Fuzzy match**: Catches typos (e.g., "inifitrade" → "infinitrade")
+- **Stemming**: Finds word variations (e.g., "trade" finds "trading", "traded")
+- **Partial match**: Substring matching (e.g., "auth" finds "authentication")
+- **Relevance scoring**: Results ranked by match quality
 
 ### 3. Context Discovery
 Find what came before:

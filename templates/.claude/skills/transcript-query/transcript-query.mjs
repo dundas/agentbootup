@@ -147,38 +147,56 @@ async function search(keyword, projectPath) {
     return;
   }
 
-  console.log(`Searching for "${keyword}"...\n`);
+  console.log(`Searching for "${keyword}" (with fuzzy matching, stemming, and partial matches)...\n`);
 
   let totalMatches = 0;
+  const allMatches = [];
 
   for (const t of transcripts) {
     const data = await parser.parseTranscript(t.path);
     const matches = parser.searchMessages(data, keyword);
 
     if (matches.length > 0) {
-      console.log(`${t.sessionId} (${new Date(data.startTime).toLocaleString()})`);
-      console.log(`  Branch: ${data.gitBranch || 'unknown'}`);
-      console.log(`  ${matches.length} matches:\n`);
-
-      matches.slice(0, 3).forEach(m => {
-        const preview = m.content.substring(0, 150).replace(/\n/g, ' ');
-        console.log(`    [${m.type}] ${preview}...`);
+      allMatches.push({
+        transcript: t,
+        data,
+        matches
       });
-
-      if (matches.length > 3) {
-        console.log(`    ... and ${matches.length - 3} more matches`);
-      }
-
-      console.log();
       totalMatches += matches.length;
     }
   }
 
-  if (totalMatches === 0) {
+  // Sort sessions by best match score
+  allMatches.sort((a, b) => b.matches[0].score - a.matches[0].score);
+
+  if (allMatches.length === 0) {
     console.log(`No matches found for "${keyword}".`);
-  } else {
-    console.log(`Total: ${totalMatches} matches across ${transcripts.length} sessions.`);
+    console.log(`Tried: exact match, fuzzy match (typos), stemming, and partial matches.`);
+    return;
   }
+
+  // Display results
+  for (const { transcript, data, matches } of allMatches) {
+    console.log(`${transcript.sessionId} (${new Date(data.startTime).toLocaleString()})`);
+    console.log(`  Branch: ${data.gitBranch || 'unknown'}`);
+    console.log(`  ${matches.length} matches (best score: ${matches[0].score.toFixed(2)}):\n`);
+
+    matches.slice(0, 3).forEach(m => {
+      const preview = m.content.substring(0, 120).replace(/\n/g, ' ');
+      const matchTypes = m.matches.map(mt => mt.type).join(', ');
+      console.log(`    [${m.type}] (${matchTypes}, score: ${m.score.toFixed(2)})`);
+      console.log(`    ${preview}...`);
+      console.log();
+    });
+
+    if (matches.length > 3) {
+      console.log(`    ... and ${matches.length - 3} more matches`);
+    }
+
+    console.log();
+  }
+
+  console.log(`Total: ${totalMatches} matches across ${allMatches.length} sessions.`);
 }
 
 async function showBefore(topic, projectPath) {
