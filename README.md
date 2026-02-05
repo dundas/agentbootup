@@ -38,11 +38,12 @@ node bootup.mjs --target . --subset agents,skills,gemini,codex
 node bootup.mjs --target . --subset memory,automation,skills
 ```
 
-- Categories: `agents, skills, commands, workflows, docs, scripts, gemini, codex, memory, automation`
+- Categories: `agents, skills, commands, workflows, docs, scripts, gemini, codex, memory, automation, hooks`
 - Defaults: installs all; skips existing files unless `--force`
 
 ## What gets installed
 
+<<<<<<< HEAD
 ### Core Development Assets
 - `.claude/agents/` → project subagents (tdd-developer, reliability-engineer, etc.)
 - `.claude/skills/` → project skills (prd-writer, task-processor, etc.)
@@ -53,6 +54,14 @@ node bootup.mjs --target . --subset memory,automation,skills
 - `.gemini/commands/` → convenience commands for Gemini
 - `.windsurf/workflows/` → Windsurf slash-command workflows
 - `ai-dev-tasks/` → PRD + tasks + processing markdown guides
+=======
+### AI Development Tools
+- `.claude/agents/` → project subagents (decomposition-architect, technical-planner, spec-writer, tdd-developer, config-task-writer, code-review-orchestrator, ui-prompt-orchestrator, contract-driven-api-developer, pattern-driven-api-developer, phased-code-developer, concurrent-artifact-developer, openapi-doc-writer)
+- `.claude/skills/` → project skills (prd-writer, tasklist-generator, task-processor, dev-workflow-orchestrator, fetch-pr-review, analyze-code-gaps, iterate-on-feedback, extract-ia-and-flows, screen-inventory-builder, style-token-suggester, prompt-writer-figma-make, prompt-writer-ux-pilot)
+- `.claude/commands/` → convenience commands (prd-writer, generate-tasks, process-tasks, dev-pipeline, code-review-workflow, ui-design-workflow)
+- `.windsurf/workflows/` → Windsurf slash-command workflows (dev-pipeline, prd-writer, generate-tasks, process-tasks, code-review-workflow, ui-design-workflow)
+- `ai-dev-tasks/` → PRD + tasks + processing + code review + UI design markdown guides
+>>>>>>> 109172e (feat(daemon): Implement memory sync daemon with real-time file watching)
 - `tasks/` → created if missing with `.gitkeep`
 - `scripts/` → utility scripts (openapi-to-llm converter)
 
@@ -68,6 +77,18 @@ node bootup.mjs --target . --subset memory,automation,skills
 - `.claude/commands/autonomous-bootup.md` → activate autonomous agent mode
 - `docs/AUTONOMOUS_BOOTUP_SPEC.md` → full technical specification
 - `docs/BOOTUP_INJECT.md` → instructions to inject into any CLI
+
+### Self-Improvement System (NEW)
+- `memory/` → Autonomous memory system for continuous learning
+  - `MEMORY.md` → Core operational knowledge (always consulted)
+  - `daily/` → Session logs with decisions and learnings
+  - `README.md` → Memory system documentation
+- `.ai/skills/` → CLI-agnostic skills
+  - `skill-acquisition/` → Systematic skill building workflow
+  - `memory-manager/` → Automated memory management
+- `.ai/protocols/` → Autonomous operation protocols
+  - `AUTONOMOUS_OPERATION.md` → Decision-making, phase gates, error handling
+- Memory system instructions appended to `CLAUDE.md` or `GEMINI.md`
 
 ## After seeding
 - Restart Claude Code to reload project assets
