@@ -290,8 +290,8 @@ export class TranscriptParser {
         matches.push({ type: 'exact-word', keyword: lowerKeyword });
       }
 
-      // 3. Partial match (substring)
-      if (includePartial) {
+      // 3. Partial match (substring) - skip if already have exact match to avoid double-counting
+      if (includePartial && !hasExactMatch) {
         const partialMatches = words.filter(w => w.includes(lowerKeyword));
         if (partialMatches.length > 0) {
           score += 5 * Math.min(partialMatches.length, 3); // Cap at 3 matches
