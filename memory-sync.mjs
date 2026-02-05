@@ -301,14 +301,22 @@ function parseArgs(argv) {
     const arg = argv[i];
 
     if (arg.startsWith('--')) {
-      const key = arg.slice(2);
-      const value = argv[i + 1];
+      const keyPart = arg.slice(2);
 
-      if (value && !value.startsWith('--')) {
-        args[key] = value;
-        i++;
+      // Handle --key=value format
+      if (keyPart.includes('=')) {
+        const [key, ...valueParts] = keyPart.split('=');
+        args[key] = valueParts.join('=');
       } else {
-        args[key] = true;
+        // Handle --key value format
+        const value = argv[i + 1];
+
+        if (value && !value.startsWith('--')) {
+          args[keyPart] = value;
+          i++;
+        } else {
+          args[keyPart] = true;
+        }
       }
     } else {
       args._.push(arg);
