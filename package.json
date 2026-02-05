@@ -6,12 +6,14 @@
   "bin": {
     "agentbootup": "bootup.mjs",
     "memory-sync": "memory-sync.mjs",
-    "memory-sync-daemon": "memory-sync-daemon.mjs"
+    "memory-sync-daemon": "memory-sync-daemon.mjs",
+    "analyze-transcripts": "analyze-transcripts.mjs"
   },
   "files": [
     "bootup.mjs",
     "memory-sync.mjs",
     "memory-sync-daemon.mjs",
+    "analyze-transcripts.mjs",
     "lib/**",
     "templates/**",
     "README.md",
