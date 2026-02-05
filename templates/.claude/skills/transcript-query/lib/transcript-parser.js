@@ -12,12 +12,28 @@ import os from 'os';
 export class TranscriptParser {
   constructor() {
     this.projectsDir = path.join(os.homedir(), '.claude', 'projects');
+    this.cache = new Map(); // Cache parsed transcripts by path
   }
 
   /**
-   * Parse a transcript file
+   * Parse a transcript file with caching
    */
-  async parseTranscript(transcriptPath) {
+  async parseTranscript(transcriptPath, useCache = true) {
+    // Check cache first
+    if (useCache && this.cache.has(transcriptPath)) {
+      const cached = this.cache.get(transcriptPath);
+      // Verify file hasn't been modified since cache
+      try {
+        const stats = await fs.stat(transcriptPath);
+        if (stats.mtime.getTime() === cached.mtime) {
+          return cached.data;
+        }
+      } catch (err) {
+        // File doesn't exist anymore, remove from cache
+        this.cache.delete(transcriptPath);
+      }
+    }
+    // Parse transcript
     const content = await fs.readFile(transcriptPath, 'utf-8');
     const lines = content.split('\n').filter(Boolean);
 
@@ -30,7 +46,22 @@ export class TranscriptParser {
       }
     }).filter(Boolean);
 
-    return this.extractStructuredData(events);
+    const data = this.extractStructuredData(events);
+
+    // Cache the result with file modification time
+    if (useCache) {
+      try {
+        const stats = await fs.stat(transcriptPath);
+        this.cache.set(transcriptPath, {
+          data,
+          mtime: stats.mtime.getTime()
+        });
+      } catch (err) {
+        // Ignore cache errors
+      }
+    }
+
+    return data;
   }
 
   /**

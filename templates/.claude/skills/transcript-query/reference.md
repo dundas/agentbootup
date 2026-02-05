@@ -22,8 +22,17 @@ cd /Users/kefentse/dev_env/myproject
 # Show most recent session
 node transcript-query.mjs recent
 
-# Search all sessions for keyword
+# Search recent sessions (default: last 10)
 node transcript-query.mjs search "authentication"
+
+# Search ALL sessions
+node transcript-query.mjs search "infinitrade" --all
+
+# Search last N sessions (e.g., last 20)
+node transcript-query.mjs search "daemon" --recent 20
+
+# Search specific session
+node transcript-query.mjs search "error" --session c5fc2201
 
 # Find what you were working on before a topic
 node transcript-query.mjs before "refactoring"
@@ -35,14 +44,16 @@ node transcript-query.mjs list
 node transcript-query.mjs summary <session-id>
 ```
 
-## From Another Directory
+## Search Options
 
-Specify the project path explicitly:
+| Option | Description | Example |
+|--------|-------------|---------|
+| (default) | Search last 10 sessions | `search "auth"` |
+| `--all` | Search all sessions | `search "auth" --all` |
+| `--recent N` | Search last N sessions | `search "auth" --recent 20` |
+| `--session ID` | Search specific session | `search "auth" --session c5fc2201` |
 
-```bash
-node transcript-query.mjs recent /Users/kefentse/dev_env/decisive_redux
-node transcript-query.mjs search "auth" /Users/kefentse/dev_env/decisive_redux
-```
+**Performance:** Parsed transcripts are cached automatically. Second search is instant (∞x speedup).
 
 ## Programmatic Usage
 

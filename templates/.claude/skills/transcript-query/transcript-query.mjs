@@ -6,6 +6,7 @@
  */
 
 import { TranscriptParser } from './lib/transcript-parser.js';
+import fs from 'fs/promises';
 
 const parser = new TranscriptParser();
 
@@ -33,7 +34,7 @@ async function main() {
           console.error('Error: search requires a keyword');
           process.exit(1);
         }
-        await search(args[1], args[2] || process.cwd());
+        await searchWithOptions(args.slice(1));
         break;
 
       case 'before':
@@ -73,15 +74,24 @@ Usage:
 Commands:
   list [project]              List all transcripts for a project
   recent [project]            Show most recent transcript summary
-  search <keyword> [project]  Search for keyword in transcripts
+  search <keyword> [options]  Search for keyword in transcripts
   before <topic> [project]    Show work done before a topic
   summary <session-id|path>   Show detailed summary of a session
   help                        Show this help
 
+Search Options:
+  --all                       Search all sessions (default: recent 10)
+  --recent N                  Search last N sessions
+  --session ID                Search specific session
+  [project-path]              Optional project path (default: current directory)
+
 Examples:
+  transcript-query.mjs search "authentication"              # Last 10 sessions
+  transcript-query.mjs search "infinitrade" --all          # All sessions
+  transcript-query.mjs search "daemon" --recent 20         # Last 20 sessions
+  transcript-query.mjs search "error" --session c5fc2201   # Specific session
   transcript-query.mjs list
   transcript-query.mjs recent
-  transcript-query.mjs search "authentication"
   transcript-query.mjs before "daemon"
   transcript-query.mjs summary c5fc2201-871d-4a4b-9798-169f52d38ec5
   `);
@@ -139,21 +149,79 @@ async function showRecent(projectPath) {
   }
 }
 
-async function search(keyword, projectPath) {
-  const transcripts = await parser.listTranscripts(projectPath);
+async function searchWithOptions(args) {
+  const keyword = args[0];
+  let projectPath = process.cwd();
+  let searchAll = false;
+  let recentCount = 10; // Default: search last 10 sessions
+  let specificSession = null;
 
-  if (transcripts.length === 0) {
+  // Parse options
+  for (let i = 1; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === '--all') {
+      searchAll = true;
+    } else if (arg === '--recent') {
+      recentCount = parseInt(args[i + 1], 10);
+      if (isNaN(recentCount)) {
+        console.error('Error: --recent requires a number');
+        process.exit(1);
+      }
+      i++; // Skip next arg
+    } else if (arg === '--session') {
+      specificSession = args[i + 1];
+      if (!specificSession) {
+        console.error('Error: --session requires a session ID');
+        process.exit(1);
+      }
+      i++; // Skip next arg
+    } else if (!arg.startsWith('--')) {
+      projectPath = arg;
+    }
+  }
+
+  const allTranscripts = await parser.listTranscripts(projectPath);
+
+  if (allTranscripts.length === 0) {
     console.log('No transcripts found for this project.');
     return;
   }
 
-  console.log(`Searching for "${keyword}" (with fuzzy matching, stemming, and partial matches)...\n`);
+  // Sort by modification time (most recent first)
+  const transcriptsWithStats = await Promise.all(
+    allTranscripts.map(async (t) => {
+      const stats = await fs.stat(t.path);
+      return { ...t, mtime: stats.mtime };
+    })
+  );
+  transcriptsWithStats.sort((a, b) => b.mtime - a.mtime);
 
+  // Select transcripts to search
+  let transcripts;
+  let scopeDescription;
+
+  if (specificSession) {
+    transcripts = transcriptsWithStats.filter(t => t.sessionId.startsWith(specificSession));
+    scopeDescription = `session ${specificSession}`;
+  } else if (searchAll) {
+    transcripts = transcriptsWithStats;
+    scopeDescription = `all ${transcripts.length} sessions`;
+  } else {
+    transcripts = transcriptsWithStats.slice(0, recentCount);
+    scopeDescription = `last ${transcripts.length} sessions`;
+  }
+
+  console.log(`Searching for "${keyword}" in ${scopeDescription} (with fuzzy matching, stemming, and partial matches)...\n`);
+
+  await search(keyword, transcripts);
+}
+
+async function search(keyword, transcripts) {
   let totalMatches = 0;
   const allMatches = [];
 
   for (const t of transcripts) {
-    const data = await parser.parseTranscript(t.path);
+    const data = await parser.parseTranscript(t.path); // Uses cache automatically
     const matches = parser.searchMessages(data, keyword);
 
     if (matches.length > 0) {
