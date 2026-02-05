@@ -9,7 +9,19 @@ with enhanced attribution to track which AI model/CLI made each change.
 
 ### Added
 
+- **Self-Improvement Workflow** (Claude Sonnet 4.5, 2026-02-05)
+  - `analyze-transcripts` CLI for on-demand transcript analysis with --dry-run, --all, --session, --reset, --stats
+  - `SELF_IMPROVEMENT.md` protocol documenting the full learning loop: analyze → curate → apply → share across brains
+  - `self-improvement` skill for Claude/Gemini/Codex with deployment guide for company brains
+  - **Context:** PR #18
+
 ### Fixed
+
+- **MemoryWriter.updateMemoryMd()** (Claude Sonnet 4.5, 2026-02-05)
+  - Now actually writes to MEMORY.md (was previously a TODO stub)
+  - Deduplication via normalized substring matching and 70% word overlap
+  - Auto-trimming at 200 lines (removes oldest auto-extracted sections first, preserves hand-written content)
+  - **Context:** PR #18
 
 ### Changed
 
